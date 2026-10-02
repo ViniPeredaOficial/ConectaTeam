@@ -4,6 +4,7 @@ import BotaoGrande from '../components/BotaoGrande'
 import ComoFunciona from '../components/landing/ComoFunciona'
 import Culturas from '../components/landing/Culturas'
 import Numeros from '../components/landing/Numeros'
+import RiscoRegiao from '../components/landing/RiscoRegiao'
 import Telegram from '../components/landing/Telegram'
 import { DATA_EXTRACAO_AGROFIT } from '../lib/fonte'
 import { useSessaoProdutor } from '../lib/sessao'
@@ -79,6 +80,7 @@ export default function Inicio() {
       </section>
 
       <Numeros />
+      <RiscoRegiao />
       <ComoFunciona />
 
       {/* Mapa */}

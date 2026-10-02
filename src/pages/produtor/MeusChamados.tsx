@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import AvisoTelegram from '../../components/AvisoTelegram'
 import BotaoGrande from '../../components/BotaoGrande'
 import { iconeDaCultura } from '../../lib/culturas'
 import { supabase } from '../../lib/supabase'
@@ -124,6 +125,7 @@ export default function MeusChamados() {
   return (
     <div className="mx-auto flex max-w-md flex-col gap-4">
       <h1 className="text-2xl font-bold text-folha-800">Meus chamados</h1>
+      <AvisoTelegram />
 
       {erro && (
         <div className="rounded-xl bg-red-50 p-3 text-red-800">

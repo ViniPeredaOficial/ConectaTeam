@@ -2,12 +2,13 @@
 // Publicada com --no-verify-jwt (o Telegram não envia JWT); a segurança é o header
 // X-Telegram-Bot-Api-Secret-Token, conferido contra o secret TELEGRAM_WEBHOOK_SECRET.
 //
-// /start  -> pergunta o município (botões da região ou digitação) e grava em inscritos_telegram
-// /sair   -> remove o inscrito
+// /start           -> pergunta o município (botões da região ou digitação) e grava em inscritos_telegram
+// /start <código>  -> liga a conversa à conta do produtor (aviso dos próprios chamados)
+// /sair            -> remove o inscrito e desliga o aviso dos chamados
 
 import { createClient } from '@supabase/supabase-js'
 import { distanciaKm } from '../_shared/geo.ts'
-import { telegram } from '../_shared/telegram.ts'
+import { codigoDoStart, telegram } from '../_shared/telegram.ts'
 import { escaparHtml, paraBusca } from '../_shared/texto.ts'
 
 // ---------------------------------------------------------------------
@@ -94,10 +95,42 @@ async function inscrever(chatId: number, cod: number) {
   )
 }
 
+// /sair: para os alertas da região e o aviso dos próprios chamados
 async function sair(chatId: number) {
   await supabase.from('inscritos_telegram').delete().eq('chat_id', chatId)
+  await supabase.from('perfis').update({ telegram_chat_id: null }).eq('telegram_chat_id', chatId)
   log('saiu')
-  await responder(chatId, 'Você não vai mais receber alertas. Para voltar, envie /start.')
+  await responder(
+    chatId,
+    'Você não vai mais receber alertas nem avisos dos seus chamados. Para voltar, envie /start ou ligue de novo em "Meus chamados".',
+  )
+}
+
+// /start <código>: liga esta conversa à conta do produtor (link gerado em "Meus chamados")
+async function ligarConta(chatId: number, codigo: string) {
+  const { data: registro } = await supabase
+    .from('codigos_telegram')
+    .select('usuario_id, expira_em')
+    .eq('codigo', codigo)
+    .maybeSingle()
+
+  if (!registro || new Date(registro.expira_em) < new Date()) {
+    log('codigo_invalido')
+    return responder(chatId, 'Este link expirou. Abra "Meus chamados" no Radar de Pragas e toque de novo em "Receber aviso no Telegram".')
+  }
+
+  // Uma conversa liga a uma conta só: solta qualquer ligação anterior desta conversa
+  await supabase.from('perfis').update({ telegram_chat_id: null }).eq('telegram_chat_id', chatId)
+  const { error } = await supabase.from('perfis').update({ telegram_chat_id: chatId }).eq('id', registro.usuario_id)
+  if (error) throw error
+  await supabase.from('codigos_telegram').delete().eq('codigo', codigo)
+
+  log('conta_ligada')
+  await responder(
+    chatId,
+    '✅ <b>Pronto!</b> Vou te avisar aqui quando seu chamado for respondido pelo especialista.\n\n' +
+      'Quer receber também os alertas de pragas da sua região? Envie /start.\nPara parar tudo, envie /sair.',
+  )
 }
 
 // Cidade digitada: igual (sem acento) inscreve direto; parecidas viram botões
@@ -144,7 +177,10 @@ async function tratar(update: any) {
   const texto: string = mensagem.text.trim()
   const comando = texto.startsWith('/') ? texto.split(/[\s@]/)[0].toLowerCase() : null
 
-  if (comando === '/start') return boasVindas(chatId)
+  if (comando === '/start') {
+    const codigo = codigoDoStart(texto)
+    return codigo ? ligarConta(chatId, codigo) : boasVindas(chatId)
+  }
   if (comando === '/sair') return sair(chatId)
   if (comando) return responder(chatId, 'Comandos: /start para escolher o município, /sair para parar os alertas.')
   return buscarCidade(chatId, texto)
