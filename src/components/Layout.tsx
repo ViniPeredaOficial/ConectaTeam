@@ -1,20 +1,23 @@
 import { Link, Outlet, useLocation, useNavigate } from 'react-router'
 import { FRASE_FONTE } from '../lib/fonte'
-import { sair } from '../lib/sessao'
+import { sair, useSessaoProdutor } from '../lib/sessao'
 
 // Estrutura comum: cabeçalho, conteúdo e rodapé fixo com a fonte dos dados
 export default function Layout() {
   const { pathname } = useLocation()
   const navegar = useNavigate()
+  const sessaoProdutor = useSessaoProdutor()
 
   // Área do especialista é para desktop: conteúdo mais largo e botão de sair
   const areaEspecialista = pathname.startsWith('/especialista')
-  const mostrarSair = areaEspecialista && pathname !== '/especialista/login'
+  const areaProdutor = pathname.startsWith('/produtor') && pathname !== '/produtor/entrar'
+  const mostrarSair =
+    (areaEspecialista && pathname !== '/especialista/login') || (areaProdutor && sessaoProdutor.estado === 'ok')
   const largura = areaEspecialista ? 'max-w-7xl' : 'max-w-5xl'
 
   async function sairDaConta() {
     await sair()
-    navegar('/especialista/login')
+    navegar(areaEspecialista ? '/especialista/login' : '/produtor/entrar')
   }
 
   return (
@@ -25,9 +28,14 @@ export default function Layout() {
             🌱 Radar de Pragas{areaEspecialista && <span className="font-normal"> · Especialista</span>}
           </Link>
           {mostrarSair && (
-            <button onClick={sairDaConta} className="text-sm font-semibold underline">
-              Sair
-            </button>
+            <div className="flex items-center gap-2 text-sm">
+              {areaProdutor && sessaoProdutor.estado === 'ok' && (
+                <span className="max-w-32 truncate">Olá, {sessaoProdutor.nome ?? 'produtor'}</span>
+              )}
+              <button onClick={sairDaConta} className="min-h-10 font-semibold underline">
+                Sair
+              </button>
+            </div>
           )}
         </div>
       </header>
