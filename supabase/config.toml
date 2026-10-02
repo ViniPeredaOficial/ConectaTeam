@@ -12,3 +12,7 @@ verify_jwt = true
 [functions.telegram-webhook]
 # O Telegram não envia JWT: a função confere o header X-Telegram-Bot-Api-Secret-Token
 verify_jwt = false
+
+[functions.avisar-produtor]
+# Exige JWT; a função ainda confere se o usuário é especialista
+verify_jwt = true

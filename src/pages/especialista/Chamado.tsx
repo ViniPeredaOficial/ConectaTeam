@@ -4,6 +4,7 @@ import { Link, useParams } from 'react-router'
 import BuscaPraga from '../../components/BuscaPraga'
 import type { PragaEscolhida } from '../../components/BuscaPraga'
 import RecorteImagem from '../../components/RecorteImagem'
+import { ClimaDoMunicipio } from '../../components/RiscoClima'
 import { iconeDaCultura } from '../../lib/culturas'
 import { trechoComDose } from '../../lib/dose'
 import { dataHora } from '../../lib/formato'
@@ -57,6 +58,13 @@ function textoDoEnvio(destinatarios: number, canal: boolean): string {
   return canal
     ? `Alerta enviado para ${contatos} e o canal da região.`
     : `Alerta enviado para ${contatos}, mas o canal da região não recebeu (confira se o bot é administrador do canal).`
+}
+
+// Avisa o produtor no Telegram (se ele ligou o aviso). Não espera: a análise segue mesmo se falhar.
+function avisarProdutor(chamadoId: string) {
+  supabase.functions.invoke('avisar-produtor', { body: { chamado_id: chamadoId } }).then(({ error }) => {
+    if (error) console.warn('Aviso ao produtor não enviado.')
+  })
 }
 
 // Chama a Edge Function "alerta" e traduz o resultado para o especialista
@@ -207,6 +215,7 @@ export default function Chamado() {
         const { error } = await supabase.from('chamados').update({ status: 'analisado' }).eq('id', chamado.id)
         if (error) throw error
         progresso.current.statusOk = true
+        avisarProdutor(chamado.id)
       }
 
       // 4. Alerta (Edge Function)
@@ -233,6 +242,7 @@ export default function Chamado() {
     if (!window.confirm('Descartar este chamado? Nenhum alerta será enviado.')) return
     const { error } = await supabase.from('chamados').update({ status: 'descartado' }).eq('id', chamado.id)
     if (error) return setErroEnvio('Não conseguimos descartar. Tente de novo.')
+    avisarProdutor(chamado.id)
     carregar()
   }
 
@@ -266,6 +276,8 @@ export default function Chamado() {
             <p className="text-sm font-semibold text-gray-600">O que o produtor viu</p>
             <p className="text-gray-900">{chamado.descricao || '(sem descrição)'}</p>
           </div>
+          {/* Clima ajuda a confirmar a suspeita (ex.: muitas horas úmidas favorecem fungos) */}
+          {chamado.municipio_cod && <ClimaDoMunicipio cod={chamado.municipio_cod} />}
         </section>
 
         {/* DIREITA: IA + resposta */}

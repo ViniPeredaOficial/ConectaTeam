@@ -1,5 +1,6 @@
 // Chamada à Bot API do Telegram. O token fica só no secret TELEGRAM_BOT_TOKEN.
-const TOKEN = Deno.env.get('TELEGRAM_BOT_TOKEN') ?? ''
+// Lido na hora do uso (importar este arquivo não exige acesso às variáveis de ambiente)
+const token = () => Deno.env.get('TELEGRAM_BOT_TOKEN') ?? ''
 
 export type RespostaTelegram = {
   ok: boolean
@@ -9,13 +10,13 @@ export type RespostaTelegram = {
 }
 
 export function telegramConfigurado(): boolean {
-  return TOKEN.length > 0
+  return token().length > 0
 }
 
 export async function telegram(metodo: string, corpo: Record<string, unknown>): Promise<RespostaTelegram> {
   for (let tentativa = 0; tentativa < 2; tentativa++) {
     try {
-      const resposta = await fetch(`https://api.telegram.org/bot${TOKEN}/${metodo}`, {
+      const resposta = await fetch(`https://api.telegram.org/bot${token()}/${metodo}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(corpo),
@@ -33,4 +34,11 @@ export async function telegram(metodo: string, corpo: Record<string, unknown>): 
     }
   }
   return { ok: false, description: 'limite_de_envio' }
+}
+
+// Código do link t.me/<bot>?start=<código>: 32 caracteres hexadecimais
+export function codigoDoStart(texto: string): string | null {
+  const [comando, codigo] = texto.trim().split(/\s+/)
+  if (!/^\/start(@\w+)?$/i.test(comando ?? '')) return null
+  return codigo && /^[a-f0-9]{32}$/.test(codigo) ? codigo : null
 }

@@ -1,5 +1,4 @@
-const CANAL = 'https://t.me/radardepragas_araraquara'
-const BOT = 'https://t.me/ConectaTeamBot'
+import { URL_BOT, URL_CANAL } from '../../lib/telegram'
 
 // Convite para receber os alertas no Telegram (canal da região e bot por município)
 export default function Telegram() {
@@ -18,7 +17,7 @@ export default function Telegram() {
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
           <a
-            href={CANAL}
+            href={URL_CANAL}
             target="_blank"
             rel="noreferrer"
             className="flex min-h-12 items-center rounded-xl bg-white px-5 font-semibold text-folha-800 hover:bg-folha-50"
@@ -26,7 +25,7 @@ export default function Telegram() {
             Entrar no canal
           </a>
           <a
-            href={BOT}
+            href={URL_BOT}
             target="_blank"
             rel="noreferrer"
             className="flex min-h-12 items-center rounded-xl border-2 border-white px-5 font-semibold hover:bg-folha-600"

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
+import BotaoDitado from '../../components/BotaoDitado'
 import BotaoGrande from '../../components/BotaoGrande'
 import Passo from '../../components/Passo'
 import { buscarCulturas, iconeDaCultura } from '../../lib/culturas'
@@ -273,6 +274,7 @@ export default function NovoChamado() {
         <p className="text-right text-sm text-gray-500">
           {descricao.length}/{MAX_DESCRICAO}
         </p>
+        <BotaoDitado onTexto={(fala) => setDescricao((atual) => juntarFala(atual, fala))} />
       </Passo>
 
       {/* 4. Local */}
@@ -356,4 +358,12 @@ async function buscarListas(): Promise<[string[], Municipio[]]> {
 function faltando(foto: File | null, cultura: string, municipio: number | null): string {
   const itens = [!foto && 'a foto', !cultura && 'a plantação', !municipio && 'o município'].filter(Boolean)
   return itens.join(', ')
+}
+
+// Acrescenta o trecho falado ao texto, com espaço e primeira letra maiúscula, sem passar do limite
+function juntarFala(atual: string, fala: string): string {
+  if (!fala) return atual
+  const trecho = fala.charAt(0).toUpperCase() + fala.slice(1)
+  const separador = atual.trim() && !/[\s]$/.test(atual) ? ' ' : ''
+  return (atual + separador + trecho).slice(0, MAX_DESCRICAO)
 }
