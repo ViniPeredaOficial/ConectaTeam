@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+/* Paleta verde-folha e fonte do sistema */
+@theme {
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  --color-folha-50: #f1f8f1;
+  --color-folha-100: #dcefdc;
+  --color-folha-200: #b9dfba;
+  --color-folha-300: #8cc98e;
+  --color-folha-400: #5dad61;
+  --color-folha-500: #3d9142;
+  --color-folha-600: #2f7d32;
+  --color-folha-700: #256228;
+  --color-folha-800: #1f4e22;
+  --color-folha-900: #1a401d;
+}
+
+body {
+  @apply bg-folha-50 text-gray-900 antialiased;
+}

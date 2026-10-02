@@ -1,0 +1,144 @@
+cultura,cultura_busca,praga_nome_comum,praga_nome_cientifico,praga_busca
+Alface,alface,Lagarta-rosca,Agrotis ipsilon,agrotis ipsilon lagarta-rosca
+Alface,alface,Mancha-de-Alternaria,Alternaria brassicae,alternaria brassicae mancha-de-alternaria
+Alface,alface,Mancha-de-Alternaria; Mancha-foliar,Alternaria sonchi,alternaria sonchi mancha-de-alternaria; mancha-foliar
+Alface,alface,Curuquerê-da-couve; Lagarta-da-couve,Ascia monuste orseis,ascia monuste orseis curuquere-da-couve; lagarta-da-couve
+Alface,alface,Mosca-branca,Bemisia tabaci,bemisia tabaci mosca-branca
+Alface,alface,Mosca-branca,Bemisia tabaci raça B,bemisia tabaci raca b mosca-branca
+Alface,alface,Mofo-cinzento; Podridão-da-flor,Botrytis cinerea,botrytis cinerea mofo-cinzento; podridao-da-flor
+Alface,alface,Míldio,Bremia lactucae,bremia lactucae mildio
+Alface,alface,Pulgão,Brevicoryne brassicae,brevicoryne brassicae pulgao
+Alface,alface,Cercosporiose; Mancha-de-Cercospora,Cercospora longissima,cercospora longissima cercosporiose; mancha-de-cercospora
+Alface,alface,Pulgão-da-alface; Pulgão-da-serralha,Dactynotus sonchi,dactynotus sonchi pulgao-da-alface; pulgao-da-serralha
+Alface,alface,Podridão mole,Erwinia carotovora subsp. carotovora,erwinia carotovora subsp. carotovora podridao mole
+Alface,alface,Tripes,Frankliniella occidentalis,frankliniella occidentalis tripes
+Alface,alface,Tripes,Frankliniella schultzei,frankliniella schultzei tripes
+Alface,alface,Fusariose; Murcha-de-fusário,Fusarium oxysporum,fusarium oxysporum fusariose; murcha-de-fusario
+Alface,alface,Mosca-minadora,Liriomyza huidobrensis,liriomyza huidobrensis mosca-minadora
+Alface,alface,Meloidoginose; Nematóide-das-galhas,Meloidogyne javanica,meloidogyne javanica meloidoginose; nematoide-das-galhas
+Alface,alface,Pulgão-verde; Pulgão-verde-claro,Myzus persicae,myzus persicae pulgao-verde; pulgao-verde-claro
+Alface,alface,oídio,Oidium sp.,oidium sp. oidio
+Alface,alface,Damping-off; Tombamento,Rhizoctonia solani,rhizoctonia solani damping-off; tombamento
+Alface,alface,Mofo-branco; Podridão-de-Sclerotinia,Sclerotinia sclerotiorum,sclerotinia sclerotiorum mofo-branco; podridao-de-sclerotinia
+Alface,alface,Septoriose,Septoria lactucae,septoria lactucae septoriose
+Alface,alface,Lagarta-do-cartucho; Lagarta-militar,Spodoptera frugiperda,spodoptera frugiperda lagarta-do-cartucho; lagarta-militar
+Alface,alface,Tripes do fumo,Thrips tabaci,thrips tabaci tripes do fumo
+Café,cafe,Mancha-de-Alternaria; Pinta-preta,Alternaria solani,alternaria solani mancha-de-alternaria; pinta-preta
+Café,cafe,Caruncho-das-tulhas; Caruncho-do-café,Araecerus fasciculatus,araecerus fasciculatus caruncho-das-tulhas; caruncho-do-cafe
+Café,cafe,Curuquerê,Ascia monuste orseis,ascia monuste orseis curuquere
+Café,cafe,Mancha-das-folhas; Mancha-de-Ascochyta,Ascochyta coffeae,ascochyta coffeae mancha-das-folhas; mancha-de-ascochyta
+Café,cafe,Fungo-de-pós-colheita; Podridão-dos-grãos-armazenados,Aspergillus flavus,aspergillus flavus fungo-de-pos-colheita; podridao-dos-graos-armazenados
+Café,cafe,Tombamento,Aspergillus niger,aspergillus niger tombamento
+Café,cafe,Fungos-de-qualidade; Mofo,Aspergillus ochraceus,aspergillus ochraceus fungos-de-qualidade; mofo
+Café,cafe,Pinheirinho; Taturana-verde,Automeris spp.,automeris spp. pinheirinho; taturana-verde
+Café,cafe,Ácaro-da-leprose; Ácaro-plano,Brevipalpus phoenicis,brevipalpus phoenicis acaro-da-leprose; acaro-plano
+Café,cafe,Mosca-das-frutas; Mosca-do-mediterrâneo,Ceratitis capitata,ceratitis capitata mosca-das-frutas; mosca-do-mediterraneo
+Café,cafe,Cercosporiose; Mancha-de-olho-pardo,Cercospora coffeicola,cercospora coffeicola cercosporiose; mancha-de-olho-pardo
+Café,cafe,Berne-das-raízes; Mosca-das-raízes,Chiromyza vittata,chiromyza vittata berne-das-raizes; mosca-das-raizes
+Café,cafe,Cochonilha-verde; Cochonilha-verde-do-cafeeiro,Coccus viridis,coccus viridis cochonilha-verde; cochonilha-verde-do-cafeeiro
+Café,cafe,Antracnose; Die back,Colletotrichum coffeanum,colletotrichum coffeanum antracnose; die back
+Café,cafe,Antracnose,Colletotrichum gloeosporioides,colletotrichum gloeosporioides antracnose
+Café,cafe,Lagarta-da-roseta,Cryptoblabes gnidiella,cryptoblabes gnidiella lagarta-da-roseta
+Café,cafe,Cochonilha-da-raiz; Cochonilha-da-raiz-do-cafeeiro,Dysmicoccus texensis,dysmicoccus texensis cochonilha-da-raiz; cochonilha-da-raiz-do-cafeeiro
+Café,cafe,Lagarta-dos-cafezais,Eacles imperialis magnifica,eacles imperialis magnifica lagarta-dos-cafezais
+Café,cafe,Oidio,Erysiphe cruciferarum,erysiphe cruciferarum oidio
+Café,cafe,Fusariose,Fusarium solani,fusarium solani fusariose
+Café,cafe,Fusariose,Fusarium spp.,fusarium spp. fusariose
+Café,cafe,Lagarta,Helicoverpa armigera,helicoverpa armigera lagarta
+Café,cafe,ferrugem-do-cafeeiro; Ferrugem,Hemileia vastatrix,hemileia vastatrix ferrugem-do-cafeeiro; ferrugem
+Café,cafe,Cupim,Heterotermes tenuis,heterotermes tenuis cupim
+Café,cafe,Broca-do-café,Hypothenemus hampei,hypothenemus hampei broca-do-cafe
+Café,cafe,Bicho-mineiro-do-café; Larva-minadora,Leucoptera coffeella,leucoptera coffeella bicho-mineiro-do-cafe; larva-minadora
+Café,cafe,Meloidoginose; Nematóide-das-galhas,Meloidogyne arenaria,meloidogyne arenaria meloidoginose; nematoide-das-galhas
+Café,cafe,Meloidoginose; Nematóide-do-descascamento,Meloidogyne coffeicola,meloidogyne coffeicola meloidoginose; nematoide-do-descascamento
+Café,cafe,Meloidoginose; Nematóide-das-galhas,Meloidogyne exigua,meloidogyne exigua meloidoginose; nematoide-das-galhas
+Café,cafe,Meloidoginose; Nematóide-das-galhas,Meloidogyne hapla,meloidogyne hapla meloidoginose; nematoide-das-galhas
+Café,cafe,Meloidoginose; Nematóide-das-galhas,Meloidogyne incognita,meloidogyne incognita meloidoginose; nematoide-das-galhas
+Café,cafe,Meloidoginose; Nematóide-das-galhas,Meloidogyne javanica,meloidogyne javanica meloidoginose; nematoide-das-galhas
+Café,cafe,Nematoide das galhas,Meloidogyne paranaensis,meloidogyne paranaensis nematoide das galhas
+Café,cafe,Aranha-vermelha-do-cafeeiro; Ácaro-vermelho,Oligonychus ilicis,oligonychus ilicis aranha-vermelha-do-cafeeiro; acaro-vermelho
+Café,cafe,Cigarrinha; Cigarrinha-da-cvc,Oncometopia facialis,oncometopia facialis cigarrinha; cigarrinha-da-cvc
+Café,cafe,Cochonilha-Orthezia; Cochonilha-de-placa,Orthezia praelonga,orthezia praelonga cochonilha-orthezia; cochonilha-de-placa
+Café,cafe,Gravetinho; Lagarta-mede-palmo,Oxidia saturniata,oxidia saturniata gravetinho; lagarta-mede-palmo
+Café,cafe,Fungo-de-armazenamento,Penicillium spp.,penicillium spp. fungo-de-armazenamento
+Café,cafe,Bicho mineiro,Perileucoptera coffeella,perileucoptera coffeella bicho mineiro
+Café,cafe,Mancha-de-Phoma; Seca-de-ponteiros,Phoma costaricensis,phoma costaricensis mancha-de-phoma; seca-de-ponteiros
+Café,cafe,Mancha-de-Phoma,Phoma tarda,phoma tarda mancha-de-phoma
+Café,cafe,Cochonilha,Planococcus minor,planococcus minor cochonilha
+Café,cafe,Ácaro-branco; Ácaro-tropical,Polyphagotarsonemus latus,polyphagotarsonemus latus acaro-branco; acaro-tropical
+Café,cafe,Crestamento-bacteriano; Mancha-aureolada,Pseudomonas syringae pv. garcae,pseudomonas syringae pv. garcae crestamento-bacteriano; mancha-aureolada
+Café,cafe,Cigarra-do-cafeeiro,Quesada gigas,quesada gigas cigarra-do-cafeeiro
+Café,cafe,Damping-off; Podridão-do-colo; Tombamento,Rhizoctonia solani,rhizoctonia solani damping-off; podridao-do-colo; tombamento
+Café,cafe,Cochonilha-parda,Saissetia coffeae,saissetia coffeae cochonilha-parda
+Café,cafe,Cochonilha-parda,Saissetia hemisphaerica,saissetia hemisphaerica cochonilha-parda
+Café,cafe,Lagarta-Thyrinteina; Lagarta-de-cor-parda,Thyrinteina arnobia,thyrinteina arnobia lagarta-thyrinteina; lagarta-de-cor-parda
+Tomate,tomate,Ácaro-bronzeado; Ácaro-do-bronzeamento,Aculops lycopersici,aculops lycopersici acaro-bronzeado; acaro-do-bronzeamento
+Tomate,tomate,Lagarta-rosca,Agrotis ipsilon,agrotis ipsilon lagarta-rosca
+Tomate,tomate,Mancha-de-Alternaria; Pinta-preta-grande; Pinta preta,Alternaria solani,alternaria solani mancha-de-alternaria; pinta-preta-grande; pinta preta
+Tomate,tomate,bredo; caruru-branco; caruru-roxo,Amaranthus hybridus,amaranthus hybridus bredo; caruru-branco; caruru-roxo
+Tomate,tomate,Mosca-branca; -,Bemisia tabaci,bemisia tabaci mosca-branca; -
+Tomate,tomate,Mosca branca,Bemisia tabaci biótipo B,bemisia tabaci biotipo b mosca branca
+Tomate,tomate,Mosca-branca; -,Bemisia tabaci raça B,bemisia tabaci raca b mosca-branca; -
+Tomate,tomate,fura-capa; pico-pico; picão,Bidens pilosa,bidens pilosa fura-capa; pico-pico; picao
+Tomate,tomate,Mofo-cinzento; Podridão-da-flor,Botrytis cinerea,botrytis cinerea mofo-cinzento; podridao-da-flor
+Tomate,tomate,capim-amoroso; capim-carrapicho; capim-roseta,Cenchrus echinatus,cenchrus echinatus capim-amoroso; capim-carrapicho; capim-roseta
+Tomate,tomate,Mancha de Cladosporium,Cladosporium fulvum,cladosporium fulvum mancha de cladosporium
+Tomate,tomate,cancro-bacteriano,Clavibacter michiganensis,clavibacter michiganensis cancro-bacteriano
+Tomate,tomate,Cancro-bacteriano; Mancha-olho-de-perdiz,Clavibacter michiganensis michiganensis,clavibacter michiganensis michiganensis cancro-bacteriano; mancha-olho-de-perdiz
+Tomate,tomate,Antracnose,Colletotrichum coccodes,colletotrichum coccodes antracnose
+Tomate,tomate,Antracnose,Colletotrichum gloeosporioides,colletotrichum gloeosporioides antracnose
+Tomate,tomate,Antracnose,Colletotrichum phomoides,colletotrichum phomoides antracnose
+Tomate,tomate,marianinha; mata-brasil; trapoeraba,Commelina benghalensis,commelina benghalensis marianinha; mata-brasil; trapoeraba
+Tomate,tomate,Percevejo-rendado,Corythaica cyathicollis,corythaica cyathicollis percevejo-rendado
+Tomate,tomate,Larva-alfinete; Vaquinha-verde-amarela,Diabrotica speciosa,diabrotica speciosa larva-alfinete; vaquinha-verde-amarela
+Tomate,tomate,capim-da-cidade; capim-de-pomar; capim-pé-de-galinha,Eleusine indica,eleusine indica capim-da-cidade; capim-de-pomar; capim-pe-de-galinha
+Tomate,tomate,Burrinho-da-batatinha; Vaquinha-das-solanáceas,Epicauta atomaria,epicauta atomaria burrinho-da-batatinha; vaquinha-das-solanaceas
+Tomate,tomate,Podridão-mole,Erwinia carotovora,erwinia carotovora podridao-mole
+Tomate,tomate,Tripes,Frankliniella occidentalis,frankliniella occidentalis tripes
+Tomate,tomate,Tripes; -,Frankliniella schultzei,frankliniella schultzei tripes; -
+Tomate,tomate,Mancha-de-Clasdoporium,Fulvia fulva,fulvia fulva mancha-de-clasdoporium
+Tomate,tomate,Fusariose; Murcha-de-fusário,Fusarium oxysporum,fusarium oxysporum fusariose; murcha-de-fusario
+Tomate,tomate,Murcha; Murcha-de-Fusarium,Fusarium oxysporum f.sp. lycopersici,fusarium oxysporum f.sp. lycopersici murcha; murcha-de-fusarium
+Tomate,tomate,Lagarta-do-algodão,Helicoverpa armigera,helicoverpa armigera lagarta-do-algodao
+Tomate,tomate,Broca-grande-do-fruto; Broca-grande-do-tomate,Helicoverpa zea,helicoverpa zea broca-grande-do-fruto; broca-grande-do-tomate
+Tomate,tomate,Oídio,Leveillula taurica,leveillula taurica oidio
+Tomate,tomate,Mosca-minadora,Liriomyza huidobrensis,liriomyza huidobrensis mosca-minadora
+Tomate,tomate,Larva-minadora; Mosca-minadora,Liriomyza trifolii,liriomyza trifolii larva-minadora; mosca-minadora
+Tomate,tomate,Larva-minadora; Mosca-minadora,Lyriomyza huidobrensis,lyriomyza huidobrensis larva-minadora; mosca-minadora
+Tomate,tomate,Larva-minadora; Mosca-minadora,Lyriomyza sativae,lyriomyza sativae larva-minadora; mosca-minadora
+Tomate,tomate,Larva-minadora; Mosca-minadora,Lyriomyza spp.,lyriomyza spp. larva-minadora; mosca-minadora
+Tomate,tomate,Pulgão-das-solanáceas; Pulgão-verde-escuro,Macrosiphum euphorbiae,macrosiphum euphorbiae pulgao-das-solanaceas; pulgao-verde-escuro
+Tomate,tomate,Meloidoginose; Nematóide-das-galhas,Meloidogyne incognita,meloidogyne incognita meloidoginose; nematoide-das-galhas
+Tomate,tomate,Meloidoginose; Nematóide-das-galhas,Meloidogyne javanica,meloidogyne javanica meloidoginose; nematoide-das-galhas
+Tomate,tomate,Pulgão-verde; Pulgão-verde-claro; -,Myzus persicae,myzus persicae pulgao-verde; pulgao-verde-claro; -
+Tomate,tomate,Grilo-toupeira; Paquinha,Neocurtilla hexadactyla,neocurtilla hexadactyla grilo-toupeira; paquinha
+Tomate,tomate,Broca-pequena-do-fruto; Broca-pequena-do-tomateiro,Neoleucinodes elegantalis,neoleucinodes elegantalis broca-pequena-do-fruto; broca-pequena-do-tomateiro
+Tomate,tomate,Oídio,Oidiopsis taurica,oidiopsis taurica oidio
+Tomate,tomate,Canela-preta; Podridão-mole,Pectobacterium subs. carotovorum,pectobacterium subs. carotovorum canela-preta; podridao-mole
+Tomate,tomate,Chupador-do-tomate; Percevejo-do-tomate,Phthia picta,phthia picta chupador-do-tomate; percevejo-do-tomate
+Tomate,tomate,Cegadeira; Traça-da-batatinha,Phthorimaea operculella,phthorimaea operculella cegadeira; traca-da-batatinha
+Tomate,tomate,Requeima,Phytophthora capsici,phytophthora capsici requeima
+Tomate,tomate,Mela; Requeima,Phytophthora infestans,phytophthora infestans mela; requeima
+Tomate,tomate,Traça-das-crucíferas; -,Plutella maculipennis,plutella maculipennis traca-das-cruciferas; -
+Tomate,tomate,Traça das cruciferas,Plutella xylostella,plutella xylostella traca das cruciferas
+Tomate,tomate,beldroega; bredo-de-porco; ora-pro-nobis,Portulaca oleracea,portulaca oleracea beldroega; bredo-de-porco; ora-pro-nobis
+Tomate,tomate,Nematóide-das-lesões,Pratylenchus brachyurus,pratylenchus brachyurus nematoide-das-lesoes
+Tomate,tomate,Lagarta do trigo,Pseudaletia adultera,pseudaletia adultera lagarta do trigo
+Tomate,tomate,Pinta-bacteriana,Pseudomonas syringae pv. tomato,pseudomonas syringae pv. tomato pinta-bacteriana
+Tomate,tomate,Estiolamento; Podridão-de-raízes,Pythium spp.,pythium spp. estiolamento; podridao-de-raizes
+Tomate,tomate,Damping-off; Tombamento,Rhizoctonia solani,rhizoctonia solani damping-off; tombamento
+Tomate,tomate,Mofo-branco; Podridão-de-Sclerotinia,Sclerotinia sclerotiorum,sclerotinia sclerotiorum mofo-branco; podridao-de-sclerotinia
+Tomate,tomate,Murcha-de-Sclerotium,Sclerotium rolfsii,sclerotium rolfsii murcha-de-sclerotium
+Tomate,tomate,Pinta-preta-pequena; Septoriose,Septoria lycopersici,septoria lycopersici pinta-preta-pequena; septoriose
+Tomate,tomate,guanxuma; mata-pasto; relógio,Sida rhombifolia,sida rhombifolia guanxuma; mata-pasto; relogio
+Tomate,tomate,lagarta-do-cartucho; lagarta-militar,Spodoptera frugiperda,spodoptera frugiperda lagarta-do-cartucho; lagarta-militar
+Tomate,tomate,Mancha-de-Stemphylium,Stemphylium solani,stemphylium solani mancha-de-stemphylium
+Tomate,tomate,Besouro,Systena tenuis,systena tenuis besouro
+Tomate,tomate,Ácaro-vermelho,Tetranychus evansi,tetranychus evansi acaro-vermelho
+Tomate,tomate,Ácaro-vermelho,Tetranychus ludeni,tetranychus ludeni acaro-vermelho
+Tomate,tomate,Ácaro-rajado,Tetranychus urticae,tetranychus urticae acaro-rajado
+Tomate,tomate,Tripes,Thrips palmi,thrips palmi tripes
+Tomate,tomate,Falsa-medideira-da-couve; Lagarta-mede-palmo,Trichoplusia ni,trichoplusia ni falsa-medideira-da-couve; lagarta-mede-palmo
+Tomate,tomate,Traça-do-tomateiro,Tuta absoluta,tuta absoluta traca-do-tomateiro
+Tomate,tomate,Mancha bacteriana,Xanthomonas perforans,xanthomonas perforans mancha bacteriana
+Tomate,tomate,Mancha-bacteriana,Xanthomonas vesicatoria,xanthomonas vesicatoria mancha-bacteriana
