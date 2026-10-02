@@ -447,6 +447,50 @@ export default function Chamado() {
   )
 }
 
+// Botão para rodar a triagem de novo (chamada travada ou IA que falhou).
+// O resultado chega sozinho pelo Realtime quando a sugestão for gravada.
+function ReprocessarTriagem({ chamado, aposMinutos }: { chamado: FilaEspecialista; aposMinutos: number }) {
+  const [agora, setAgora] = useState<number | null>(null)
+  const [estado, setEstado] = useState<'parado' | 'enviando' | 'enviado' | 'erro'>('parado')
+
+  // Relógio que atualiza a cada 30 s para o botão aparecer na hora certa
+  useEffect(() => {
+    const atualizar = () => setAgora(Date.now())
+    const primeiro = setTimeout(atualizar, 0)
+    const intervalo = setInterval(atualizar, 30_000)
+    return () => {
+      clearTimeout(primeiro)
+      clearInterval(intervalo)
+    }
+  }, [])
+
+  if (chamado.status !== 'em_analise' || agora === null) return null
+  if ((agora - new Date(chamado.criado_em).getTime()) / 60_000 < aposMinutos) return null
+
+  async function rodar() {
+    setEstado('enviando')
+    const { error } = await supabase.functions.invoke('triagem', { body: { chamado_id: chamado.id } })
+    setEstado(error ? 'erro' : 'enviado')
+  }
+
+  if (estado === 'enviado') {
+    return <p className="text-sm text-folha-800">IA acionada de novo. A sugestão aparece aqui em até 2 minutos.</p>
+  }
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <button
+        onClick={rodar}
+        disabled={estado === 'enviando'}
+        className="rounded-lg border-2 border-folha-600 px-3 py-1 text-sm font-semibold text-folha-700 hover:bg-folha-50 disabled:opacity-50"
+      >
+        {estado === 'enviando' ? 'Acionando...' : '🔄 Rodar triagem de novo'}
+      </button>
+      {estado === 'erro' && <span className="text-sm text-red-700">Não deu certo. Tente de novo em instantes.</span>}
+      <span className="text-xs text-gray-500">Você pode analisar sem a IA, se preferir.</span>
+    </div>
+  )
+}
+
 // Candidatas da IA com barra de confiança e produtos registrados
 function SugestoesIA({
   chamado,
@@ -461,8 +505,23 @@ function SugestoesIA({
   podeEscolher: boolean
   onEscolher: (c: Candidata) => void
 }) {
-  if (!chamado.ia_criado_em) return <p className="text-gray-600">Triagem em andamento… esta área atualiza sozinha.</p>
-  if (chamado.ia_erro) return <p className="font-semibold text-amber-800">Triagem automática indisponível.</p>
+  if (!chamado.ia_criado_em) {
+    return (
+      <div className="flex flex-col gap-2">
+        <p className="text-gray-600">Triagem em andamento… esta área atualiza sozinha.</p>
+        {/* Normal é levar até 2 min; depois de 3 min, provavelmente a chamada não chegou à IA */}
+        <ReprocessarTriagem chamado={chamado} aposMinutos={3} />
+      </div>
+    )
+  }
+  if (chamado.ia_erro) {
+    return (
+      <div className="flex flex-col gap-2">
+        <p className="font-semibold text-amber-800">Triagem automática indisponível.</p>
+        <ReprocessarTriagem chamado={chamado} aposMinutos={0} />
+      </div>
+    )
+  }
   if (candidatas.length === 0) {
     return (
       <p className="text-gray-700">
