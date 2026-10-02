@@ -12,7 +12,14 @@ import type { Recorte } from '../../lib/imagem'
 import { supabase } from '../../lib/supabase'
 import type { Candidata, FilaEspecialista, ImagemAlerta, Validacao } from '../../types/database'
 
-type Dados = { chamado: FilaEspecialista; fotoUrl: string | null; validacao: Validacao | null }
+type AlertaEnviado = { destinatarios: number; canal_enviado: boolean; enviado_em: string }
+
+type Dados = {
+  chamado: FilaEspecialista
+  fotoUrl: string | null
+  validacao: Validacao | null
+  alerta: AlertaEnviado | null
+}
 
 // Etapas já concluídas: "tentar de novo" continua daqui, sem duplicar
 type Progresso = { imagemPath?: string | null; validacaoId?: string; statusOk?: boolean }
@@ -29,28 +36,45 @@ async function buscarChamado(id: string): Promise<Dados> {
       : Promise.resolve({ data: null }),
     supabase.from('validacoes').select('*').eq('chamado_id', id).maybeSingle(),
   ])
-  return {
-    chamado: chamado as FilaEspecialista,
-    fotoUrl: foto.data?.signedUrl ?? null,
-    validacao: (validacao.data as Validacao | null) ?? null,
+  const v = (validacao.data as Validacao | null) ?? null
+
+  // Alerta já enviado para esta validação (leitura pública da tabela alertas)
+  let alerta: AlertaEnviado | null = null
+  if (v) {
+    const { data } = await supabase
+      .from('alertas')
+      .select('destinatarios, canal_enviado, enviado_em')
+      .eq('validacao_id', v.id)
+      .maybeSingle()
+    alerta = data
   }
+
+  return { chamado: chamado as FilaEspecialista, fotoUrl: foto.data?.signedUrl ?? null, validacao: v, alerta }
 }
 
-// Chama a Edge Function "alerta" (Prompt 7). Enquanto ela não existir, avisa sem quebrar.
+function textoDoEnvio(destinatarios: number, canal: boolean): string {
+  const contatos = `${destinatarios} ${destinatarios === 1 ? 'contato' : 'contatos'}`
+  return canal
+    ? `Alerta enviado para ${contatos} e o canal da região.`
+    : `Alerta enviado para ${contatos}, mas o canal da região não recebeu (confira se o bot é administrador do canal).`
+}
+
+// Chama a Edge Function "alerta" e traduz o resultado para o especialista
 async function enviarAlerta(validacaoId: string): Promise<Resultado> {
   const { data, error } = await supabase.functions.invoke('alerta', { body: { validacao_id: validacaoId } })
   if (!error) {
-    const n = (data as { destinatarios?: number })?.destinatarios ?? 0
-    return { tipo: 'ok', texto: `Alerta enviado para ${n} contatos e o canal da região.` }
+    const r = data as { destinatarios: number; canal_enviado: boolean }
+    return { tipo: r.canal_enviado ? 'ok' : 'aviso', texto: textoDoEnvio(r.destinatarios, r.canal_enviado) }
   }
-  if (error instanceof FunctionsHttpError && error.context.status === 404) {
+  if (!(error instanceof FunctionsHttpError)) {
+    return { tipo: 'aviso', texto: 'Resposta salva, mas o alerta não foi enviado (sem conexão). Tente "Enviar alerta" de novo.' }
+  }
+  if (error.context.status === 404) {
     return { tipo: 'aviso', texto: 'Resposta salva. O alerta será enviado quando a função de alerta estiver publicada.' }
   }
-  // Mensagem da função (ex.: trava de dose no servidor), quando houver
-  let detalhe = ''
-  if (error instanceof FunctionsHttpError) {
-    detalhe = ((await error.context.json().catch(() => null)) as { erro?: string } | null)?.erro ?? ''
-  }
+  // Mensagem da função (ex.: trava de dose no servidor, alerta já enviado)
+  const detalhe = ((await error.context.json().catch(() => null)) as { erro?: string } | null)?.erro ?? ''
+  if (error.context.status === 409) return { tipo: 'ok', texto: detalhe || 'Este alerta já foi enviado.' }
   return { tipo: 'aviso', texto: `Resposta salva, mas o alerta não foi enviado. ${detalhe}`.trim() }
 }
 
@@ -115,7 +139,8 @@ export default function Chamado() {
   }
   if (!dados) return <p className="text-gray-600">Carregando...</p>
 
-  const { chamado, fotoUrl, validacao } = dados
+  const { chamado, fotoUrl, validacao, alerta } = dados
+  const alertaSaiu = Boolean(alerta && (alerta.canal_enviado || alerta.destinatarios > 0))
   const candidatas: Candidata[] = chamado.ia_candidatas ?? []
   const doseEncontrada = trechoComDose(`${comoIdentificar}\n${manejo}`)
 
@@ -195,6 +220,15 @@ export default function Chamado() {
     }
   }
 
+  // Resposta já salva, mas o alerta não saiu (rede, função fora, bloqueio): tenta de novo
+  async function reenviarAlerta() {
+    if (!validacao) return
+    setEnviando(true)
+    setResultado(await enviarAlerta(validacao.id))
+    setEnviando(false)
+    carregar()
+  }
+
   async function descartar() {
     if (!window.confirm('Descartar este chamado? Nenhum alerta será enviado.')) return
     const { error } = await supabase.from('chamados').update({ status: 'descartado' }).eq('id', chamado.id)
@@ -248,7 +282,25 @@ export default function Chamado() {
           </div>
 
           {validacao ? (
-            <RespostaDada validacao={validacao} />
+            <>
+              <RespostaDada validacao={validacao} />
+              {alertaSaiu && alerta ? (
+                <p className="rounded-xl bg-folha-100 p-3 text-folha-800">
+                  📣 {dataHora(alerta.enviado_em)}: {textoDoEnvio(alerta.destinatarios, alerta.canal_enviado)}
+                </p>
+              ) : (
+                <div className="flex items-center justify-between gap-3 rounded-xl bg-amber-50 p-3 text-amber-900">
+                  <span>O alerta desta resposta ainda não foi enviado.</span>
+                  <button
+                    onClick={reenviarAlerta}
+                    disabled={enviando}
+                    className="min-h-10 shrink-0 rounded-lg bg-folha-600 px-4 font-semibold text-white disabled:opacity-50"
+                  >
+                    {enviando ? 'Enviando...' : 'Enviar alerta'}
+                  </button>
+                </div>
+              )}
+            </>
           ) : chamado.status === 'descartado' ? (
             <div className="rounded-2xl bg-gray-100 p-5 text-gray-700">Este chamado foi descartado.</div>
           ) : (
