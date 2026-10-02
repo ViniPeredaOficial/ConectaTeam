@@ -1,0 +1,2 @@
+# Scripts bash precisam de fim de linha LF (CRLF quebra o bash no Windows)
+*.sh text eol=lf
