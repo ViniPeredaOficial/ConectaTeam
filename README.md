@@ -156,7 +156,7 @@ supabase login
 supabase link --project-ref <ref-do-projeto>        # ref = trecho da URL https://<ref>.supabase.co
 supabase secrets set GEMINI_API_KEY=<chave-do-ai-studio> GEMINI_MODEL=gemini-3.5-flash
 supabase secrets set GEMINI_MODELOS_RESERVA=gemini-2.5-flash,gemini-3.1-flash-lite
-supabase secrets set ALLOWED_ORIGINS=http://localhost:5173,https://<seu-app>.vercel.app
+supabase secrets set ALLOWED_ORIGINS="http://localhost:5173,https://<seu-app>.vercel.app,https://<seu-app>-*-<time>.vercel.app"   # "*" libera os previews do Vercel
 supabase functions deploy triagem --use-api          # --use-api dispensa o Docker
 ```
 
