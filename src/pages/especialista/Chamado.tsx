@@ -284,7 +284,12 @@ export default function Chamado() {
           {validacao ? (
             <>
               <RespostaDada validacao={validacao} />
-              {alertaSaiu && alerta ? (
+              {chamado.simulado && alerta ? (
+                // Demonstração: nunca dispara alerta falso no canal real
+                <p className="rounded-xl bg-purple-50 p-3 text-purple-900">
+                  🧪 Alerta simulado ({dataHora(alerta.enviado_em)}): não enviado ao Telegram.
+                </p>
+              ) : alertaSaiu && alerta ? (
                 <p className="rounded-xl bg-folha-100 p-3 text-folha-800">
                   📣 {dataHora(alerta.enviado_em)}: {textoDoEnvio(alerta.destinatarios, alerta.canal_enviado)}
                 </p>
