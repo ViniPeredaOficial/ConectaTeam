@@ -11,11 +11,11 @@ O pequeno produtor costuma descobrir uma praga quando o estrago já começou. El
 
 ## A solução
 
-O produtor tira uma foto pelo celular, sem instalar app e sem cadastro. Uma IA faz a **triagem** usando a base oficial **Agrofit/MAPA**, e um **especialista humano confirma** a resposta. Só depois da confirmação sai um **alerta regional no Telegram** para os produtores da região. Cada resposta também fica salva como **dado rotulado** (IA × especialista), base para treinar modelos melhores no futuro.
+O produtor tira uma foto pelo celular, sem instalar app, entrando com o número do celular e uma senha. Uma IA faz a **triagem** usando a base oficial **Agrofit/MAPA**, e um **especialista humano confirma** a resposta. Só depois da confirmação sai um **alerta regional no Telegram** para os produtores da região. Cada resposta também fica salva como **dado rotulado** (IA × especialista), base para treinar modelos melhores no futuro.
 
 ## Como funciona (5 passos)
 
-1. **O produtor reporta.** Envia foto, cultura, o que viu e o município. A foto é recomprimida no próprio celular, o que remove o EXIF e o GPS.
+1. **O produtor reporta.** Entra com celular e senha e envia foto, cultura, o que viu e o município. A foto é recomprimida no próprio celular, o que remove o EXIF e o GPS.
 2. **A IA faz a triagem.** O Gemini sugere de 1 a 3 pragas, **só da lista do Agrofit** para aquela cultura, cada uma com nível de confiança e os produtos registrados.
 3. **O especialista decide.** Na fila, que atualiza ao vivo, ele confirma ou corrige a praga, escreve como identificar e o manejo (**sem dose**) e escolhe a imagem do alerta.
 4. **O alerta sai.** Vai para o canal da região e para os inscritos do bot num raio de 15 km, **sempre** terminando com "Procure a assistência técnica (CATI) antes de aplicar qualquer produto."
@@ -41,8 +41,9 @@ Para montar o backend do zero, nesta ordem:
 1. Aplique as migrations de [supabase/migrations/](supabase/migrations/) em ordem no SQL Editor.
 2. Importe os CSVs de `scripts/saida/` (veja [Dados](#dados)).
 3. Publique as Edge Functions e cadastre os secrets (veja [Edge Function `triagem`](#edge-function-triagem) e [Alertas no Telegram](#alertas-no-telegram)).
-4. Crie um usuário especialista: crie o usuário no Auth e rode `update perfis set papel = 'especialista' ...` no SQL Editor.
-5. (Opcional) Rode [supabase/seed/demo.sql](supabase/seed/demo.sql) para ter dados de demonstração.
+4. Em Authentication → Sign In / Providers: desligue **"Confirm email"** (o login do produtor usa um e-mail interno, sem envio) e desligue **"Allow anonymous sign-ins"**.
+5. Crie um usuário especialista: crie o usuário no Auth e rode `update perfis set papel = 'especialista' ...` no SQL Editor.
+6. (Opcional) Rode [supabase/seed/demo.sql](supabase/seed/demo.sql) para ter dados de demonstração.
 
 ## Fontes de dados e licenças
 
@@ -63,7 +64,7 @@ Toda tela mostra a frase "Fonte: Agrofit/MAPA, dados.agricultura.gov.br, extraí
   - A coordenada exata fica numa tabela separada, que o especialista não acessa por RLS.
   - Telas, mapa e alertas mostram só o **município**, e o mapa usa o centroide dele.
   - A foto é recomprimida no navegador, o que remove EXIF e GPS. Isso foi testado com uma foto de 3000×2000 com GPS no EXIF: a saída não tinha EXIF nem GPS.
-- **Dados mínimos.** O produtor entra sem cadastro (login anônimo), e o nome é opcional. Não pedimos CPF, telefone nem e-mail. Os logs das Edge Functions não registram dados pessoais nem `chat_id`.
+- **Dados mínimos.** O produtor entra com **celular e senha**. O celular serve só como login e é guardado apenas no Supabase Auth, como um identificador interno. O especialista, a fila, o mapa e os alertas nunca o mostram, e o produtor dá o consentimento na tela de cadastro. O nome é opcional, e não pedimos CPF nem e-mail. Os logs das Edge Functions não registram dados pessoais nem `chat_id`.
 - **Nenhuma chave secreta no front.** Gemini, Telegram e `service_role` existem só como secrets das Edge Functions. A auditoria confirmou que o bundle de produção tem só a anon key e que nenhuma chave aparece no código nem no histórico do git.
 - **Dado simulado é sempre marcado.** Ele tem `simulado = true` no banco, o selo "simulado" em toda tela e "🧪 SIMULADO" no texto do alerta. Alertas simulados nunca são enviados ao canal real.
 - **Atenção ao plano gratuito do Gemini.** Pelos termos do Google, o conteúdo enviado no plano gratuito pode ser usado para melhorar os produtos deles. Por isso a foto vai sem metadados e a descrição não deve conter dados pessoais. Em produção, o caminho é o plano pago ou um modelo próprio.
@@ -74,7 +75,8 @@ Toda tela mostra a frase "Fonte: Agrofit/MAPA, dados.agricultura.gov.br, extraí
 - **Cobertura da demo:** só tomate, café e alface, só municípios de SP e só pragas e doenças (plantas daninhas ficaram de fora).
 - **O raio do alerta é aproximado**, porque é calculado entre centroides de municípios. Em municípios grandes, ele pode incluir ou excluir vizinhos de forma imprecisa.
 - **A trava de dose é por padrões de texto.** Ela é conservadora (pode bloquear algo legítimo) e não pega dose por extenso, como "dois litros". A revisão do especialista continua essencial.
-- **O histórico do produtor fica no navegador**, por causa do login anônimo. Não há notificação push: a resposta aparece com a tela aberta, e o alerta regional chega pelo Telegram.
+- **Não há recuperação de senha no MVP.** Ela será feita por SMS no futuro. Até lá, a equipe pode redefinir a senha com [scripts/redefinir_senha.mjs](scripts/redefinir_senha.mjs).
+- **Não há notificação push.** A resposta aparece com a tela aberta, e o alerta regional chega pelo Telegram.
 - **Especialistas são cadastrados manualmente** pelo SQL Editor.
 
 ## Próximos passos
@@ -124,7 +126,8 @@ scripts/                 scripts Python de dados
 | Rota | Tela |
 |---|---|
 | `/` | Escolha: Sou produtor / Sou especialista |
-| `/produtor` | Reportar praga |
+| `/produtor/entrar` | Entrar ou criar conta (celular + senha) |
+| `/produtor` | Reportar praga (exige conta) |
 | `/produtor/chamados` | Meus chamados |
 | `/especialista/login` | Login do especialista |
 | `/especialista` | Fila de chamados |
