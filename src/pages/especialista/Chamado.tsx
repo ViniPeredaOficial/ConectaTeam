@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { FunctionsHttpError } from '@supabase/supabase-js'
-import { Link, useParams } from 'react-router'
+import { useParams } from 'react-router'
+import BotaoVoltar from '../../components/BotaoVoltar'
 import BuscaPraga from '../../components/BuscaPraga'
+import FotoAmpliavel from '../../components/FotoAmpliavel'
 import type { PragaEscolhida } from '../../components/BuscaPraga'
 import RecorteImagem from '../../components/RecorteImagem'
 import { ClimaDoMunicipio } from '../../components/RiscoClima'
@@ -11,6 +13,7 @@ import { dataHora } from '../../lib/formato'
 import { recomprimirFoto, recortarFoto } from '../../lib/imagem'
 import type { Recorte } from '../../lib/imagem'
 import { supabase } from '../../lib/supabase'
+import { useTitulo } from '../../lib/titulo'
 import type { Candidata, FilaEspecialista, ImagemAlerta, Validacao } from '../../types/database'
 
 type AlertaEnviado = { destinatarios: number; canal_enviado: boolean; enviado_em: string }
@@ -88,6 +91,7 @@ async function enviarAlerta(validacaoId: string): Promise<Resultado> {
 
 // Análise de um chamado pelo especialista
 export default function Chamado() {
+  useTitulo('Análise do chamado')
   const { id = '' } = useParams()
   const [dados, setDados] = useState<Dados | null>(null)
   const [erroCarregar, setErroCarregar] = useState(false)
@@ -248,15 +252,17 @@ export default function Chamado() {
 
   return (
     <div className="flex flex-col gap-4">
-      <Link to="/especialista" className="text-sm font-semibold text-folha-700 underline">
-        ← Voltar para a fila
-      </Link>
+      <BotaoVoltar para="/especialista" rotulo="Voltar para a fila" />
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* ESQUERDA: o que o produtor enviou */}
         <section className="flex flex-col gap-3 rounded-2xl bg-white p-5 shadow-sm">
           {fotoUrl ? (
-            <img src={fotoUrl} alt="Foto enviada pelo produtor" className="max-h-[520px] w-full rounded-xl object-contain bg-gray-100" />
+            <FotoAmpliavel
+              src={fotoUrl}
+              alt="Foto enviada pelo produtor"
+              className="max-h-[520px] w-full rounded-xl bg-gray-100 object-contain"
+            />
           ) : (
             <div className="flex h-64 items-center justify-center rounded-xl bg-gray-100 text-gray-500">Sem foto</div>
           )}

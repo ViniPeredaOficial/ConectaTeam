@@ -1,8 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
 import AvisoTelegram from '../../components/AvisoTelegram'
 import BotaoGrande from '../../components/BotaoGrande'
+import BotaoVoltar from '../../components/BotaoVoltar'
+import FotoAmpliavel from '../../components/FotoAmpliavel'
 import { iconeDaCultura } from '../../lib/culturas'
 import { supabase } from '../../lib/supabase'
+import { useTitulo } from '../../lib/titulo'
 import type { StatusChamado } from '../../types/database'
 
 // Resposta do especialista que o produtor pode ler (RLS: só dos próprios chamados)
@@ -80,6 +83,7 @@ async function buscarMeusChamados(): Promise<{ usuario: string | null; lista: Ch
 
 // Lista dos chamados do produtor, atualizada ao vivo quando o especialista responde
 export default function MeusChamados() {
+  useTitulo('Meus chamados')
   const [chamados, setChamados] = useState<ChamadoDoProdutor[]>([])
   const [usuarioId, setUsuarioId] = useState<string | null>(null)
   const [carregando, setCarregando] = useState(true)
@@ -124,6 +128,7 @@ export default function MeusChamados() {
 
   return (
     <div className="mx-auto flex max-w-md flex-col gap-4">
+      <BotaoVoltar para="/" />
       <h1 className="text-2xl font-bold text-folha-800">Meus chamados</h1>
       <AvisoTelegram />
 
@@ -147,7 +152,14 @@ export default function MeusChamados() {
           <article key={c.id} className="rounded-2xl bg-white p-4 shadow-sm">
             <div className="flex gap-3">
               {c.fotoUrl ? (
-                <img src={c.fotoUrl} alt="" className="h-20 w-20 shrink-0 rounded-xl object-cover" />
+                <div className="h-20 w-20 shrink-0">
+                  <FotoAmpliavel
+                    src={c.fotoUrl}
+                    alt={`Foto do chamado de ${c.cultura}`}
+                    className="h-20 w-20 rounded-xl object-cover"
+                    mostrarSelo={false}
+                  />
+                </div>
               ) : (
                 <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-folha-50 text-3xl">
                   {iconeDaCultura(c.cultura)}
