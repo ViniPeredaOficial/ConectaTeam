@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router'
 import { iconeDaCultura } from '../../lib/culturas'
 import { tempoDesde } from '../../lib/formato'
 import { supabase } from '../../lib/supabase'
+import { useTitulo } from '../../lib/titulo'
 import type { FilaEspecialista } from '../../types/database'
 
 type ItemFila = FilaEspecialista & { fotoUrl?: string }
@@ -67,6 +68,7 @@ function tocarBip() {
 
 // Fila de chamados do especialista, atualizada ao vivo
 export default function Fila() {
+  useTitulo('Fila de chamados')
   const [itens, setItens] = useState<ItemFila[]>([])
   const [contadores, setContadores] = useState<Contadores | null>(null)
   const [erro, setErro] = useState(false)
