@@ -18,6 +18,24 @@ Outros comandos: `npm run build` (gera o build de produção em `dist/`) e `npm 
 
 > Nunca coloque no `.env` do front a service_role, a chave do Gemini ou o token do Telegram. Essas chaves ficam como secrets das Edge Functions.
 
+## Fluxo de branches
+
+```
+branch de trabalho (criada a partir de develop) → PR → develop → PR → staging → PR → main
+```
+
+- Não é possível dar push direto em `main`, `staging` ou `develop`, e ninguém pode apagar essas branches ou fazer force push nelas. A regra fica no ruleset "Fluxo protegido" do GitHub.
+- Todo PR precisa da aprovação de @ViniPeredaOficial, definido em [.github/CODEOWNERS](.github/CODEOWNERS).
+- O check `fluxo` ([.github/workflows/fluxo-de-branches.yml](.github/workflows/fluxo-de-branches.yml)) recusa PRs fora da ordem, por exemplo de uma feature direto para `main`.
+
+Para começar uma tarefa:
+```bash
+git checkout develop && git pull
+git checkout -b feat/minha-tarefa
+# ...commits...
+git push -u origin feat/minha-tarefa   # depois abra o PR para develop
+```
+
 ## Estrutura
 
 ```
