@@ -29,7 +29,6 @@ export default function NovoChamado() {
   const [cultura, setCultura] = useState('')
   const [descricao, setDescricao] = useState('')
   const [municipioCod, setMunicipioCod] = useState<number | null>(null)
-  const [nome, setNome] = useState('')
 
   // Coordenada exata: fica só em memória para gravar em chamados_localizacao. Nunca é exibida.
   const coordenada = useRef<{ lat: number; lon: number } | null>(null)
@@ -113,22 +112,11 @@ export default function NovoChamado() {
     setErroEnvio(null)
 
     try {
-      // 1. Sessão: se não houver, entra como anônimo (sem cadastro)
+      // 1. Sessão da conta do produtor (a rota já exige login com celular + senha)
       setEtapa('Conectando...')
-      let {
+      const {
         data: { session },
       } = await supabase.auth.getSession()
-      const nomeLimpo = nome.trim().slice(0, 80)
-      if (!session) {
-        const { data, error } = await supabase.auth.signInAnonymously({
-          options: { data: nomeLimpo ? { nome: nomeLimpo } : {} },
-        })
-        if (error) throw error
-        session = data.session
-      } else if (nomeLimpo) {
-        // Atualizar o nome não é essencial: se falhar, segue o envio
-        await supabase.from('perfis').update({ nome: nomeLimpo }).eq('id', session.user.id)
-      }
       if (!session) throw new Error('sem_sessao')
       const uid = session.user.id
 
@@ -337,18 +325,6 @@ export default function NovoChamado() {
           </button>
         )}
       </Passo>
-
-      {/* Nome opcional */}
-      <label className="block rounded-2xl bg-white p-4 shadow-sm">
-        <span className="text-base font-semibold text-gray-800">Seu nome (opcional)</span>
-        <input
-          value={nome}
-          onChange={(e) => setNome(e.target.value)}
-          maxLength={80}
-          autoComplete="given-name"
-          className="mt-2 min-h-12 w-full rounded-xl border-2 border-gray-200 px-3 text-base focus:border-folha-500 focus:outline-none"
-        />
-      </label>
 
       {erroEnvio && (
         <div role="alert" className="rounded-xl bg-red-50 p-3 text-red-800">
