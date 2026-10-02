@@ -100,6 +100,59 @@ Para medir a latência do Gemini direto da sua máquina, sem passar pelo Supabas
 
 [supabase/seed/demo.sql](supabase/seed/demo.sql) cria 7 chamados simulados com as sugestões da IA já gravadas. Eles cobrem um caso de IA confiante, um de IA em dúvida, um de foto ruim e um de IA fora do ar, e garantem a apresentação mesmo sem o Gemini. Antes de rodar, crie o usuário `produtor.demo@radardepragas.app` em Authentication → Users. Depois rode o arquivo no SQL Editor; ele pode ser executado de novo, porque apaga e recria a demo.
 
+## Alertas no Telegram
+
+### Função `alerta`
+
+O especialista confirma o chamado e o painel chama `POST { validacao_id }`. Só usuários com papel `especialista` têm acesso. A função:
+1. Calcula os municípios num raio de 15 km (configurável em `ALERTA_RAIO_KM`), usando os **centroides** dos municípios e nunca a coordenada do produtor.
+2. Monta a mensagem: praga, região, cultura, como identificar, manejo e até 5 produtos do Agrofit, com os biológicos primeiro.
+3. Envia ao canal da região e aos inscritos desses municípios.
+4. Grava o resultado em `alertas`.
+
+Regras de segurança da mensagem:
+- Uma trava no servidor recusa textos com dose (por exemplo "2 L/ha" ou "300 mL").
+- A mensagem **sempre termina** com o aviso da CATI.
+- Dados simulados saem marcados com "🧪 SIMULADO".
+- Cada validação gera no máximo um alerta.
+
+### Função `telegram-webhook`
+
+É o cadastro de inscritos pelo bot:
+- `/start` mostra botões com as cidades até 40 km de Araraquara, ou o produtor digita o nome da cidade.
+- `/sair` remove a inscrição.
+
+O Telegram não envia JWT, então a função é publicada com `verify_jwt = false` (veja [supabase/config.toml](supabase/config.toml)). Em troca, ela só aceita requisições com o header `X-Telegram-Bot-Api-Secret-Token` correto.
+
+### Configurar (uma vez)
+
+1. Crie o bot no **@BotFather** e guarde o token.
+2. Crie o canal público "Radar de Pragas · Região de Araraquara" e adicione o bot como **administrador**.
+3. Cadastre os secrets e publique as funções:
+   ```bash
+   SEGREDO=$(openssl rand -hex 32); echo "$SEGREDO"   # guarde este valor: ele é usado no passo 4
+   supabase secrets set TELEGRAM_BOT_TOKEN=<token> TELEGRAM_CANAL_ID=@<nome_do_canal> TELEGRAM_WEBHOOK_SECRET=$SEGREDO
+   # opcionais: ALERTA_RAIO_KM=15 TELEGRAM_REGIAO_COD=3503208 TELEGRAM_REGIAO_RAIO_KM=40
+   supabase functions deploy alerta --use-api
+   supabase functions deploy telegram-webhook --use-api --no-verify-jwt
+   ```
+4. Aponte o webhook do bot para a função, com o **mesmo** `secret_token`:
+   ```bash
+   curl -s "https://api.telegram.org/bot<TOKEN>/setWebhook" \
+     -d "url=https://<ref-do-projeto>.supabase.co/functions/v1/telegram-webhook" \
+     -d "secret_token=$SEGREDO" \
+     -d 'allowed_updates=["message","callback_query"]'
+   ```
+   Para conferir: `curl -s "https://api.telegram.org/bot<TOKEN>/getWebhookInfo"`.
+
+Rode os passos 3 e 4 no mesmo terminal, porque o `$SEGREDO` só existe nele. O `supabase secrets list` mostra apenas um hash do valor.
+
+### Testes da mensagem
+
+```bash
+deno test supabase/functions/alerta/mensagem_test.ts
+```
+
 ## Dados
 
 | Base | Link | Extraído em | Uso |

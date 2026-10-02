@@ -110,6 +110,8 @@ export interface Alerta {
   imagem_url: string | null
   simulado: boolean
   enviado_em: string
+  destinatarios: number // inscritos que receberam
+  canal_enviado: boolean
 }
 
 // Linha da view vw_fila_especialista (sem coordenada e sem produtor_id)
