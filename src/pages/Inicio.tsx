@@ -8,6 +8,7 @@ import RiscoRegiao from '../components/landing/RiscoRegiao'
 import Telegram from '../components/landing/Telegram'
 import { DATA_EXTRACAO_AGROFIT } from '../lib/fonte'
 import { useSessaoProdutor } from '../lib/sessao'
+import { useTitulo } from '../lib/titulo'
 
 // O Leaflet só é baixado quando o mapa aparece (deixa o resto do app leve)
 const MapaAlertas = lazy(() => import('../components/MapaAlertas'))
@@ -21,6 +22,7 @@ const CONFIANCA = [
 
 // Landing page: tela inicial pública do Radar de Pragas
 export default function Inicio() {
+  useTitulo()
   const sessao = useSessaoProdutor()
   const logado = sessao.estado === 'ok'
 

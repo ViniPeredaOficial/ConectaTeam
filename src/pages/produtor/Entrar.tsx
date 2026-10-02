@@ -2,8 +2,10 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useNavigate, useSearchParams } from 'react-router'
 import BotaoGrande from '../../components/BotaoGrande'
+import BotaoVoltar from '../../components/BotaoVoltar'
 import { emailDoCelular, mascararCelular, normalizarCelular } from '../../lib/celular'
 import { supabase } from '../../lib/supabase'
+import { useTitulo } from '../../lib/titulo'
 
 type Aba = 'entrar' | 'criar'
 
@@ -21,6 +23,7 @@ function mensagemDeErro(mensagem: string): string {
 
 // Login e cadastro do produtor por celular + senha
 export default function Entrar() {
+  useTitulo('Entrar')
   const navegar = useNavigate()
   const [parametros] = useSearchParams()
   const voltar = parametros.get('voltar')?.startsWith('/produtor') ? parametros.get('voltar')! : '/produtor'
@@ -78,6 +81,7 @@ export default function Entrar() {
 
   return (
     <div className="mx-auto flex max-w-md flex-col gap-4">
+      <BotaoVoltar para="/" rotulo="Voltar para o início" />
       <h1 className="text-2xl font-bold text-folha-800">
         {aba === 'entrar' ? 'Entrar' : 'Criar conta'}
       </h1>
