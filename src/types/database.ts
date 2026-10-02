@@ -92,7 +92,7 @@ export interface Validacao {
   especialista_id: string
   praga_nome_comum: string | null
   praga_nome_cientifico: string
-  ia_acertou: boolean
+  ia_acertou: boolean | null // null: a IA não sugeriu nada
   como_identificar: string | null
   manejo: string | null
   imagem_alerta: ImagemAlerta

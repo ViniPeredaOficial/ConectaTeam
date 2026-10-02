@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router'
 import Layout from './components/Layout'
+import RotaEspecialista from './components/RotaEspecialista'
 import Inicio from './pages/Inicio'
 import NovoChamado from './pages/produtor/NovoChamado'
 import MeusChamados from './pages/produtor/MeusChamados'
@@ -16,8 +17,11 @@ export default function App() {
         <Route path="/produtor" element={<NovoChamado />} />
         <Route path="/produtor/chamados" element={<MeusChamados />} />
         <Route path="/especialista/login" element={<Login />} />
-        <Route path="/especialista" element={<Fila />} />
-        <Route path="/especialista/chamado/:id" element={<Chamado />} />
+        {/* Só para perfis.papel = 'especialista' */}
+        <Route element={<RotaEspecialista />}>
+          <Route path="/especialista" element={<Fila />} />
+          <Route path="/especialista/chamado/:id" element={<Chamado />} />
+        </Route>
         <Route path="*" element={<p className="text-center">Página não encontrada.</p>} />
       </Route>
     </Routes>
