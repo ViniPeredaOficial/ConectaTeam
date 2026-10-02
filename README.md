@@ -67,6 +67,7 @@ Toda tela mostra a frase "Fonte: Agrofit/MAPA, dados.agricultura.gov.br, extraí
 - **Dados mínimos.** O produtor entra com **celular e senha**. O celular serve só como login e é guardado apenas no Supabase Auth, como um identificador interno. O especialista, a fila, o mapa e os alertas nunca o mostram, e o produtor dá o consentimento na tela de cadastro. O nome é opcional, e não pedimos CPF nem e-mail. Os logs das Edge Functions não registram dados pessoais nem `chat_id`.
 - **Nenhuma chave secreta no front.** Gemini, Telegram e `service_role` existem só como secrets das Edge Functions. A auditoria confirmou que o bundle de produção tem só a anon key e que nenhuma chave aparece no código nem no histórico do git.
 - **Dado simulado é sempre marcado.** Ele tem `simulado = true` no banco, o selo "simulado" em toda tela e "🧪 SIMULADO" no texto do alerta. Alertas simulados nunca são enviados ao canal real.
+- **Ditado por voz é opcional.** O botão 🎤 usa o reconhecimento de voz do próprio navegador. No Chrome, o áudio é processado pelo Google, e a tela avisa isso. Quem preferir pode só digitar.
 - **Atenção ao plano gratuito do Gemini.** Pelos termos do Google, o conteúdo enviado no plano gratuito pode ser usado para melhorar os produtos deles. Por isso a foto vai sem metadados e a descrição não deve conter dados pessoais. Em produção, o caminho é o plano pago ou um modelo próprio.
 
 ## Limitações conhecidas
