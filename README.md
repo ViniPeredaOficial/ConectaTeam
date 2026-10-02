@@ -52,6 +52,7 @@ Para montar o backend do zero, nesta ordem:
 | Agrofit: produtos formulados (MAPA) | https://dados.agricultura.gov.br/dataset/agrofit | 02/10/2026 | CC-BY, conforme o portal de dados abertos do MAPA (a confirmar na página do conjunto) |
 | Municípios com coordenadas (dados do IBGE) | https://github.com/kelvins/municipios-brasileiros | 02/10/2026 | MIT |
 | Mapa base | https://www.openstreetmap.org | ao vivo | Dados © colaboradores do OpenStreetMap, sob ODbL. Os tiles exigem atribuição, que aparece no mapa |
+| Previsão do tempo (risco climático) | https://open-meteo.com | ao vivo | CC-BY 4.0 (uso não comercial gratuito, sem chave) |
 | Leaflet / react-leaflet | https://leafletjs.com | — | BSD-2-Clause / Hippocratic |
 
 Toda tela mostra a frase "Fonte: Agrofit/MAPA, dados.agricultura.gov.br, extraído em 02/10/2026".
@@ -72,6 +73,7 @@ Toda tela mostra a frase "Fonte: Agrofit/MAPA, dados.agricultura.gov.br, extraí
 
 ## Limitações conhecidas
 
+- **O risco climático é um indicador simplificado.** Ele conta horas favoráveis na previsão (fungos: umidade ≥ 90% e 12 a 26 °C; tempo seco: acima de 28 °C com umidade abaixo de 50%). Não é um modelo agronômico calibrado por praga e não substitui a CATI.
 - **A IA gratuita é lenta e instável.** Medimos de 28 a mais de 60 segundos, com erros 503 de sobrecarga. A triagem roda em segundo plano, tenta de novo e usa modelos reserva; se tudo falhar, o especialista segue sem a sugestão.
 - **Cobertura da demo:** só tomate, café e alface, só municípios de SP e só pragas e doenças (plantas daninhas ficaram de fora).
 - **O raio do alerta é aproximado**, porque é calculado entre centroides de municípios. Em municípios grandes, ele pode incluir ou excluir vizinhos de forma imprecisa.
