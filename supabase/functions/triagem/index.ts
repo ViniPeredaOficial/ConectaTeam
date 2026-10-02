@@ -362,7 +362,12 @@ Deno.serve(async (req) => {
     .eq('id', corpo.chamado_id)
     .maybeSingle<Chamado>()
   if (!chamado) return responder(404, { erro: 'Chamado não encontrado' })
-  if (chamado.produtor_id !== auth.user.id) return responder(403, { erro: 'Chamado de outro usuário' })
+  // Dono do chamado ou especialista (que pode rodar a triagem de novo quando ela travou ou falhou)
+  if (chamado.produtor_id !== auth.user.id) {
+    const { data: perfil } = await supabase.from('perfis').select('papel').eq('id', auth.user.id).maybeSingle()
+    if (perfil?.papel !== 'especialista') return responder(403, { erro: 'Chamado de outro usuário' })
+    log('reprocessar', { chamado_id: chamado.id })
+  }
 
   // Se já há sugestão sem erro, devolve a mesma (poupa a cota gratuita do Gemini)
   const { data: existente } = await supabase
