@@ -1,12 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router'
+import { Link, useBlocker } from 'react-router'
 import BotaoDitado from '../../components/BotaoDitado'
 import BotaoGrande from '../../components/BotaoGrande'
+import BotaoVoltar from '../../components/BotaoVoltar'
+import DicasFoto from '../../components/DicasFoto'
 import Passo from '../../components/Passo'
 import { buscarCulturas, iconeDaCultura } from '../../lib/culturas'
 import { DISTANCIA_MAXIMA_KM, municipioMaisProximo, pegarLocalizacao } from '../../lib/geo'
 import { recomprimirFoto } from '../../lib/imagem'
 import { supabase } from '../../lib/supabase'
+import { useTitulo } from '../../lib/titulo'
 import type { Municipio } from '../../types/database'
 
 const MAX_DESCRICAO = 500
@@ -19,6 +22,8 @@ type Progresso = { fotoPath?: string; chamadoId?: string; localizacaoGravada?: b
 
 // Formulário de novo chamado do produtor, em 4 passos
 export default function NovoChamado() {
+  useTitulo('Reportar praga')
+
   // Dados de apoio
   const [culturas, setCulturas] = useState<string[]>([])
   const [municipios, setMunicipios] = useState<Municipio[]>([])
@@ -57,6 +62,24 @@ export default function NovoChamado() {
   }
 
   useEffect(carregar, [])
+
+  // Aviso ao sair com o formulário preenchido: vale para links do app, botão voltar do celular
+  // (useBlocker) e para fechar/recarregar a aba (beforeunload)
+  const preenchido = Boolean(foto || cultura || descricao.trim()) && envio !== 'sucesso' && envio !== 'enviando'
+  const bloqueio = useBlocker(
+    ({ currentLocation, nextLocation }) => preenchido && currentLocation.pathname !== nextLocation.pathname,
+  )
+  useEffect(() => {
+    if (bloqueio.state !== 'blocked') return
+    if (window.confirm('Você vai perder o que preencheu (foto e descrição). Sair mesmo?')) bloqueio.proceed()
+    else bloqueio.reset()
+  }, [bloqueio])
+  useEffect(() => {
+    if (!preenchido) return
+    const avisar = (e: BeforeUnloadEvent) => e.preventDefault()
+    window.addEventListener('beforeunload', avisar)
+    return () => window.removeEventListener('beforeunload', avisar)
+  }, [preenchido])
 
   // Troca a prévia, liberando a memória da anterior
   function trocarPrevia(arquivo: File | null) {
@@ -205,6 +228,7 @@ export default function NovoChamado() {
 
   return (
     <div className="mx-auto flex max-w-md flex-col gap-4">
+      <BotaoVoltar para="/" />
       <div className="flex items-center justify-between gap-2">
         <h1 className="text-2xl font-bold text-folha-800">Reportar praga</h1>
         <Link to="/produtor/chamados" className="text-sm font-semibold text-folha-700 underline">
@@ -237,6 +261,7 @@ export default function NovoChamado() {
           />
         </label>
         <p className="mt-2 text-sm text-gray-600">Chegue perto da folha ou do fruto, com luz do dia.</p>
+        <DicasFoto />
       </Passo>
 
       {/* 2. Cultura */}
