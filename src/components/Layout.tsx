@@ -37,6 +37,22 @@ export default function Layout() {
               </button>
             </div>
           )}
+          {/* Landing: botão de login (ou atalho para quem já entrou) */}
+          {pathname === '/' &&
+            (sessaoProdutor.estado === 'ok' ? (
+              <Link to="/produtor/chamados" className="text-sm font-semibold underline">
+                Meus chamados
+              </Link>
+            ) : (
+              sessaoProdutor.estado === 'deslogado' && (
+                <Link
+                  to="/produtor/entrar"
+                  className="flex min-h-10 items-center rounded-lg bg-white px-4 text-sm font-bold text-folha-800 hover:bg-folha-50"
+                >
+                  Entrar
+                </Link>
+              )
+            ))}
         </div>
       </header>
 

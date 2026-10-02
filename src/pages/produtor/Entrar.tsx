@@ -25,7 +25,7 @@ export default function Entrar() {
   const [parametros] = useSearchParams()
   const voltar = parametros.get('voltar')?.startsWith('/produtor') ? parametros.get('voltar')! : '/produtor'
 
-  const [aba, setAba] = useState<Aba>('entrar')
+  const [aba, setAba] = useState<Aba>(parametros.get('aba') === 'criar' ? 'criar' : 'entrar')
   const [celular, setCelular] = useState('')
   const [nome, setNome] = useState('')
   const [senha, setSenha] = useState('')
