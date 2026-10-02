@@ -59,6 +59,13 @@ function textoDoEnvio(destinatarios: number, canal: boolean): string {
     : `Alerta enviado para ${contatos}, mas o canal da região não recebeu (confira se o bot é administrador do canal).`
 }
 
+// Avisa o produtor no Telegram (se ele ligou o aviso). Não espera: a análise segue mesmo se falhar.
+function avisarProdutor(chamadoId: string) {
+  supabase.functions.invoke('avisar-produtor', { body: { chamado_id: chamadoId } }).then(({ error }) => {
+    if (error) console.warn('Aviso ao produtor não enviado.')
+  })
+}
+
 // Chama a Edge Function "alerta" e traduz o resultado para o especialista
 async function enviarAlerta(validacaoId: string): Promise<Resultado> {
   const { data, error } = await supabase.functions.invoke('alerta', { body: { validacao_id: validacaoId } })
@@ -207,6 +214,7 @@ export default function Chamado() {
         const { error } = await supabase.from('chamados').update({ status: 'analisado' }).eq('id', chamado.id)
         if (error) throw error
         progresso.current.statusOk = true
+        avisarProdutor(chamado.id)
       }
 
       // 4. Alerta (Edge Function)
@@ -233,6 +241,7 @@ export default function Chamado() {
     if (!window.confirm('Descartar este chamado? Nenhum alerta será enviado.')) return
     const { error } = await supabase.from('chamados').update({ status: 'descartado' }).eq('id', chamado.id)
     if (error) return setErroEnvio('Não conseguimos descartar. Tente de novo.')
+    avisarProdutor(chamado.id)
     carregar()
   }
 

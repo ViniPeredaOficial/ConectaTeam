@@ -19,7 +19,7 @@ O produtor tira uma foto pelo celular, sem instalar app, entrando com o número 
 2. **A IA faz a triagem.** O Gemini sugere de 1 a 3 pragas, **só da lista do Agrofit** para aquela cultura, cada uma com nível de confiança e os produtos registrados.
 3. **O especialista decide.** Na fila, que atualiza ao vivo, ele confirma ou corrige a praga, escreve como identificar e o manejo (**sem dose**) e escolhe a imagem do alerta.
 4. **O alerta sai.** Vai para o canal da região e para os inscritos do bot num raio de 15 km, **sempre** terminando com "Procure a assistência técnica (CATI) antes de aplicar qualquer produto."
-5. **Todos ficam sabendo.** O produtor vê a resposta na tela "Meus chamados", o mapa público mostra os alertas por município e o par IA × especialista fica registrado.
+5. **Todos ficam sabendo.** O produtor vê a resposta em "Meus chamados" e, se quiser, recebe um aviso particular no Telegram, o mapa público mostra os alertas por município e o par IA × especialista fica registrado.
 
 ## Stack
 
@@ -67,6 +67,7 @@ Toda tela mostra a frase "Fonte: Agrofit/MAPA, dados.agricultura.gov.br, extraí
 - **Dados mínimos.** O produtor entra com **celular e senha**. O celular serve só como login e é guardado apenas no Supabase Auth, como um identificador interno. O especialista, a fila, o mapa e os alertas nunca o mostram, e o produtor dá o consentimento na tela de cadastro. O nome é opcional, e não pedimos CPF nem e-mail. Os logs das Edge Functions não registram dados pessoais nem `chat_id`.
 - **Nenhuma chave secreta no front.** Gemini, Telegram e `service_role` existem só como secrets das Edge Functions. A auditoria confirmou que o bundle de produção tem só a anon key e que nenhuma chave aparece no código nem no histórico do git.
 - **Dado simulado é sempre marcado.** Ele tem `simulado = true` no banco, o selo "simulado" em toda tela e "🧪 SIMULADO" no texto do alerta. Alertas simulados nunca são enviados ao canal real.
+- **Ditado por voz é opcional.** O botão 🎤 usa o reconhecimento de voz do próprio navegador. No Chrome, o áudio é processado pelo Google, e a tela avisa isso. Quem preferir pode só digitar.
 - **Atenção ao plano gratuito do Gemini.** Pelos termos do Google, o conteúdo enviado no plano gratuito pode ser usado para melhorar os produtos deles. Por isso a foto vai sem metadados e a descrição não deve conter dados pessoais. Em produção, o caminho é o plano pago ou um modelo próprio.
 
 ## Limitações conhecidas
@@ -218,7 +219,12 @@ Regras de segurança da mensagem:
 
 É o cadastro de inscritos pelo bot:
 - `/start` mostra botões com as cidades até 40 km de Araraquara, ou o produtor digita o nome da cidade.
-- `/sair` remove a inscrição.
+- `/start <código>` liga a conversa à conta do produtor. O código é de uso único, vale 30 minutos e é gerado em "Meus chamados" → "Receber aviso no Telegram".
+- `/sair` remove a inscrição e desliga o aviso dos chamados.
+
+### Função `avisar-produtor`
+
+O painel chama `POST { chamado_id }` quando o especialista confirma ou descarta um chamado; só especialista tem acesso. Se o produtor ligou o Telegram, ele recebe uma mensagem particular com a praga confirmada (ou o encerramento) e o link para "Meus chamados". A mensagem nunca traz manejo nem produtos e termina com o aviso da CATI. Ela não é enviada para chamados simulados, e a coluna `chamados.produtor_avisado_em` impede aviso repetido. O `chat_id` fica em `perfis.telegram_chat_id`: só o próprio produtor lê, e só o bot grava.
 
 O Telegram não envia JWT, então a função é publicada com `verify_jwt = false` (veja [supabase/config.toml](supabase/config.toml)). Em troca, ela só aceita requisições com o header `X-Telegram-Bot-Api-Secret-Token` correto.
 
@@ -233,6 +239,7 @@ O Telegram não envia JWT, então a função é publicada com `verify_jwt = fals
    # opcionais: ALERTA_RAIO_KM=15 TELEGRAM_REGIAO_COD=3503208 TELEGRAM_REGIAO_RAIO_KM=40
    supabase functions deploy alerta --use-api
    supabase functions deploy telegram-webhook --use-api --no-verify-jwt
+   supabase functions deploy avisar-produtor --use-api
    ```
 4. Aponte o webhook do bot para a função, com o **mesmo** `secret_token`:
    ```bash
