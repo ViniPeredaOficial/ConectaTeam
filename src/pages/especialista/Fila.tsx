@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router'
+import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react'
+import { Link, useSearchParams } from 'react-router'
 import { iconeDaCultura } from '../../lib/culturas'
 import { tempoDesde } from '../../lib/formato'
 import { supabase } from '../../lib/supabase'
@@ -9,6 +9,9 @@ type ItemFila = FilaEspecialista & { fotoUrl?: string }
 type Contadores = { emAnalise: number; analisadosHoje: number; taxaAcerto: number | null }
 
 const DESTAQUE_MS = 8_000
+
+// O Leaflet só é baixado quando a aba do mapa é aberta
+const MapaAlertas = lazy(() => import('../../components/MapaAlertas'))
 
 // Em análise primeiro (mais antigos no topo); depois os já tratados (mais recentes primeiro)
 function ordenar(itens: ItemFila[]): ItemFila[] {
@@ -69,6 +72,8 @@ export default function Fila() {
   const [erro, setErro] = useState(false)
   const [destaques, setDestaques] = useState<Set<string>>(new Set())
   const [som, setSom] = useState(false)
+  const [parametros, setParametros] = useSearchParams()
+  const aba = parametros.get('aba') === 'mapa' ? 'mapa' : 'fila'
   // O canal do Realtime lê o valor atual do som sem precisar ser recriado
   const somLigado = useRef(som)
   useEffect(() => {
@@ -116,7 +121,27 @@ export default function Fila() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-folha-800">Fila de chamados</h1>
+        {/* Abas: a escolhida fica na URL (?aba=mapa) */}
+        <div className="flex gap-1 rounded-xl bg-white p-1 shadow-sm" role="tablist">
+          {(
+            [
+              ['fila', 'Fila de chamados'],
+              ['mapa', 'Mapa de alertas'],
+            ] as const
+          ).map(([valor, rotulo]) => (
+            <button
+              key={valor}
+              role="tab"
+              aria-selected={aba === valor}
+              onClick={() => setParametros(valor === 'mapa' ? { aba: 'mapa' } : {})}
+              className={`rounded-lg px-4 py-2 text-lg font-bold ${
+                aba === valor ? 'bg-folha-600 text-white' : 'text-folha-800 hover:bg-folha-50'
+              }`}
+            >
+              {rotulo}
+            </button>
+          ))}
+        </div>
         <button
           onClick={() => setSom((s) => !s)}
           className="rounded-lg border px-3 py-1 text-sm"
@@ -126,6 +151,37 @@ export default function Fila() {
         </button>
       </div>
 
+      {aba === 'mapa' ? (
+        <section className="rounded-2xl bg-white p-4 shadow-sm">
+          <Suspense fallback={<div className="h-[600px] animate-pulse rounded-xl bg-gray-100" />}>
+            <MapaAlertas altura="h-[600px]" rolagem />
+          </Suspense>
+        </section>
+      ) : (
+        <ConteudoFila
+          itens={itens}
+          contadores={contadores}
+          erro={erro}
+          destaques={destaques}
+          onTentarDeNovo={carregar}
+        />
+      )}
+    </div>
+  )
+}
+
+type PropsConteudo = {
+  itens: ItemFila[]
+  contadores: Contadores | null
+  erro: boolean
+  destaques: Set<string>
+  onTentarDeNovo: () => void
+}
+
+// Contadores + lista de chamados (aba "Fila")
+function ConteudoFila({ itens, contadores, erro, destaques, onTentarDeNovo }: PropsConteudo) {
+  return (
+    <>
       {/* Contadores */}
       <div className="grid grid-cols-3 gap-4">
         <Contador rotulo="Em análise" valor={contadores ? String(contadores.emAnalise) : '…'} />
@@ -141,7 +197,7 @@ export default function Fila() {
       {erro && (
         <div className="rounded-xl bg-red-50 p-3 text-red-800">
           Não conseguimos carregar a fila.{' '}
-          <button className="font-semibold underline" onClick={carregar}>
+          <button className="font-semibold underline" onClick={onTentarDeNovo}>
             Tentar de novo
           </button>
         </div>
@@ -156,7 +212,7 @@ export default function Fila() {
           </li>
         ))}
       </ul>
-    </div>
+    </>
   )
 }
 

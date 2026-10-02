@@ -37,7 +37,7 @@ export default function Layout() {
         <Outlet />
       </main>
 
-      <footer className="fixed bottom-0 inset-x-0 bg-folha-900 text-folha-100 text-xs text-center px-4 py-2">
+      <footer className="fixed bottom-0 inset-x-0 z-[1000] bg-folha-900 text-folha-100 text-xs text-center px-4 py-2">
         {FRASE_FONTE}
       </footer>
     </div>
