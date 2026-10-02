@@ -24,7 +24,7 @@ export function useEspecialista(): Acesso {
     }
     atualizar()
     const { data } = supabase.auth.onAuthStateChange((evento) => {
-      if (evento === 'SIGNED_IN' || evento === 'SIGNED_OUT') atualizar()
+      if (evento === 'SIGNED_IN' || evento === 'SIGNED_OUT') setTimeout(atualizar, 0)
     })
     return () => data.subscription.unsubscribe()
   }, [])
@@ -32,28 +32,36 @@ export function useEspecialista(): Acesso {
   return acesso
 }
 
-// Sessão do produtor: conta com celular + senha (sessão anônima antiga não vale)
-export type SessaoProdutor = { estado: 'carregando' } | { estado: 'deslogado' } | { estado: 'ok'; nome: string | null }
+// Sessão com o papel da conta (perfis.papel). Sessão anônima antiga conta como deslogado.
+// Uma conta é produtor OU especialista: cada área só aceita o seu papel.
+export type Sessao =
+  | { estado: 'carregando' }
+  | { estado: 'deslogado' }
+  | { estado: 'produtor' | 'especialista'; nome: string | null }
 
-async function lerSessaoProdutor(): Promise<SessaoProdutor> {
+async function lerSessao(): Promise<Sessao> {
   const {
     data: { session },
   } = await supabase.auth.getSession()
   if (!session || session.user.is_anonymous) return { estado: 'deslogado' }
-  const nome = session.user.user_metadata?.nome
-  return { estado: 'ok', nome: typeof nome === 'string' && nome.trim() ? nome.trim() : null }
+
+  const { data: perfil } = await supabase.from('perfis').select('papel, nome').eq('id', session.user.id).maybeSingle()
+  const nomeCadastro = session.user.user_metadata?.nome
+  const nome = [perfil?.nome, nomeCadastro].find((n) => typeof n === 'string' && n.trim())?.trim() ?? null
+  return { estado: perfil?.papel === 'especialista' ? 'especialista' : 'produtor', nome }
 }
 
-export function useSessaoProdutor(): SessaoProdutor {
-  const [sessao, setSessao] = useState<SessaoProdutor>({ estado: 'carregando' })
+export function useSessao(): Sessao {
+  const [sessao, setSessao] = useState<Sessao>({ estado: 'carregando' })
 
   useEffect(() => {
     const atualizar = () => {
-      lerSessaoProdutor().then(setSessao)
+      lerSessao().then(setSessao)
     }
     atualizar()
     const { data } = supabase.auth.onAuthStateChange((evento) => {
-      if (evento === 'SIGNED_IN' || evento === 'SIGNED_OUT' || evento === 'USER_UPDATED') atualizar()
+      // setTimeout: o Supabase recomenda não chamar o próprio cliente dentro deste callback
+      if (evento === 'SIGNED_IN' || evento === 'SIGNED_OUT' || evento === 'USER_UPDATED') setTimeout(atualizar, 0)
     })
     return () => data.subscription.unsubscribe()
   }, [])
