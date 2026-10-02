@@ -5,7 +5,9 @@
 # Ex.:  bash scripts/testar_triagem.sh ~/Downloads/folha-tomate.jpg Tomate "Folhas com furos e lagartas pequenas"
 #
 # Lê VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY do .env (só chaves públicas).
-# Requer "Allow anonymous sign-ins" ativado no Supabase. Usa node para ler JSON (não precisa de jq).
+# Entra com um produtor de teste (celular + senha), criando a conta na primeira vez.
+# Troque com TESTE_CELULAR e TESTE_SENHA. Requer "Confirm email" desligado no Supabase.
+# Usa node para ler JSON (não precisa de jq).
 set -euo pipefail
 
 FOTO="${1:?Informe o caminho de uma foto .jpg}"
@@ -19,8 +21,15 @@ KEY="${VITE_SUPABASE_ANON_KEY:?Defina VITE_SUPABASE_ANON_KEY no .env}"
 # Lê um campo de um JSON vindo do stdin. Ex.: echo '{"a":1}' | campo .a
 campo() { node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const j=JSON.parse(s);const v=eval('j'+process.argv[1]);if(v===undefined){console.error(s);process.exit(1)}console.log(v)})" "$1"; }
 
-echo "1) Login anônimo..."
-LOGIN=$(curl -sS -X POST "$URL/auth/v1/signup" -H "apikey: $KEY" -H "Content-Type: application/json" -d '{}')
+echo "1) Entrando com o produtor de teste..."
+EMAIL="55${TESTE_CELULAR:-16900000001}@celular.radardepragas.app"
+SENHA="${TESTE_SENHA:-teste-radar-2026}"
+CREDENCIAIS="{\"email\":\"$EMAIL\",\"password\":\"$SENHA\"}"
+LOGIN=$(curl -sS -X POST "$URL/auth/v1/token?grant_type=password" -H "apikey: $KEY" -H "Content-Type: application/json" -d "$CREDENCIAIS")
+if ! echo "$LOGIN" | grep -q access_token; then
+  echo "   conta de teste ainda não existe: criando..."
+  LOGIN=$(curl -sS -X POST "$URL/auth/v1/signup" -H "apikey: $KEY" -H "Content-Type: application/json" -d "$CREDENCIAIS")
+fi
 TOKEN=$(echo "$LOGIN" | campo .access_token)
 USUARIO=$(echo "$LOGIN" | campo .user.id)
 
