@@ -1,0 +1,43 @@
+# Garante a ordem do fluxo de branches:
+#   branch de trabalho -> develop -> staging -> main
+# É um check obrigatório ("fluxo") no ruleset das branches protegidas.
+name: Fluxo de branches
+
+on:
+  pull_request:
+    branches: [main, staging, develop]
+    # "edited" roda de novo se alguém trocar a branch de destino do PR
+    types: [opened, reopened, synchronize, edited]
+
+permissions: {}
+
+jobs:
+  fluxo:
+    name: fluxo
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verifica origem e destino do PR
+        # Valores do PR vão por variável de ambiente (nunca direto no script)
+        env:
+          BASE: ${{ github.base_ref }}
+          HEAD: ${{ github.head_ref }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          REPO: ${{ github.repository }}
+        run: |
+          falha() { echo "::error::$1"; exit 1; }
+
+          # Branch de mesmo nome vinda de um fork não conta como a branch oficial
+          [ "$HEAD_REPO" = "$REPO" ] || falha "PRs de fork não são aceitos nas branches protegidas."
+
+          case "$BASE" in
+            main)
+              [ "$HEAD" = "staging" ] || falha "PRs para main só podem vir de staging (recebido: $HEAD)." ;;
+            staging)
+              [ "$HEAD" = "develop" ] || falha "PRs para staging só podem vir de develop (recebido: $HEAD)." ;;
+            develop)
+              case "$HEAD" in
+                main|staging|develop) falha "PRs para develop devem vir de uma branch de trabalho criada a partir de develop (recebido: $HEAD)." ;;
+              esac ;;
+          esac
+
+          echo "Fluxo ok: $HEAD -> $BASE"
