@@ -4,6 +4,7 @@ import { Link, useParams } from 'react-router'
 import BuscaPraga from '../../components/BuscaPraga'
 import type { PragaEscolhida } from '../../components/BuscaPraga'
 import RecorteImagem from '../../components/RecorteImagem'
+import { ClimaDoMunicipio } from '../../components/RiscoClima'
 import { iconeDaCultura } from '../../lib/culturas'
 import { trechoComDose } from '../../lib/dose'
 import { dataHora } from '../../lib/formato'
@@ -266,6 +267,8 @@ export default function Chamado() {
             <p className="text-sm font-semibold text-gray-600">O que o produtor viu</p>
             <p className="text-gray-900">{chamado.descricao || '(sem descrição)'}</p>
           </div>
+          {/* Clima ajuda a confirmar a suspeita (ex.: muitas horas úmidas favorecem fungos) */}
+          {chamado.municipio_cod && <ClimaDoMunicipio cod={chamado.municipio_cod} />}
         </section>
 
         {/* DIREITA: IA + resposta */}
