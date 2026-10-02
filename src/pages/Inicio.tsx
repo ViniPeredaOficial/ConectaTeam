@@ -7,7 +7,7 @@ import Numeros from '../components/landing/Numeros'
 import RiscoRegiao from '../components/landing/RiscoRegiao'
 import Telegram from '../components/landing/Telegram'
 import { DATA_EXTRACAO_AGROFIT } from '../lib/fonte'
-import { useSessaoProdutor } from '../lib/sessao'
+import { useSessao } from '../lib/sessao'
 import { useTitulo } from '../lib/titulo'
 
 // O Leaflet só é baixado quando o mapa aparece (deixa o resto do app leve)
@@ -23,8 +23,9 @@ const CONFIANCA = [
 // Landing page: tela inicial pública do Radar de Pragas
 export default function Inicio() {
   useTitulo()
-  const sessao = useSessaoProdutor()
-  const logado = sessao.estado === 'ok'
+  const sessao = useSessao()
+  const produtor = sessao.estado === 'produtor'
+  const especialista = sessao.estado === 'especialista'
 
   return (
     <div className="flex flex-col gap-10 pt-2">
@@ -41,7 +42,15 @@ export default function Inicio() {
           produtores da região recebem o alerta.
         </p>
         <div className="mt-6 flex max-w-md flex-col gap-3 sm:flex-row">
-          {logado ? (
+          {especialista ? (
+            // Conta de especialista não usa a área do produtor
+            <Link
+              to="/especialista"
+              className="flex min-h-12 flex-1 items-center justify-center rounded-xl bg-white px-5 text-lg font-semibold text-folha-800"
+            >
+              Ir para o painel do especialista
+            </Link>
+          ) : produtor ? (
             <>
               <Link
                 to="/produtor"
@@ -73,12 +82,14 @@ export default function Inicio() {
             </>
           )}
         </div>
-        <p className="mt-4 text-sm text-folha-100">
-          É agrônomo ou técnico?{' '}
-          <Link to="/especialista/login" className="font-semibold underline">
-            Acesso do especialista
-          </Link>
-        </p>
+        {!produtor && !especialista && (
+          <p className="mt-4 text-sm text-folha-100">
+            É agrônomo ou técnico?{' '}
+            <Link to="/especialista/login" className="font-semibold underline">
+              Acesso do especialista
+            </Link>
+          </p>
+        )}
       </section>
 
       <Numeros />
@@ -116,7 +127,7 @@ export default function Inicio() {
       </section>
 
       {/* Chamada final */}
-      {!logado && (
+      {sessao.estado === 'deslogado' && (
         <section className="mx-auto flex w-full max-w-md flex-col gap-3 text-center">
           <h2 className="text-xl font-bold text-folha-800">Comece agora</h2>
           <BotaoGrande to="/produtor/entrar?aba=criar">Criar conta com meu celular</BotaoGrande>

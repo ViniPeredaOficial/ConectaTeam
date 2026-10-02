@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { useNavigate, useSearchParams } from 'react-router'
+import { Navigate, useNavigate, useSearchParams } from 'react-router'
 import BotaoGrande from '../../components/BotaoGrande'
 import BotaoVoltar from '../../components/BotaoVoltar'
+import ContaDeEspecialista from '../../components/ContaDeEspecialista'
 import { emailDoCelular, mascararCelular, normalizarCelular } from '../../lib/celular'
+import { useSessao } from '../../lib/sessao'
 import { supabase } from '../../lib/supabase'
 import { useTitulo } from '../../lib/titulo'
 
@@ -37,6 +39,7 @@ export default function Entrar() {
   const [enviando, setEnviando] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
   const [mostrarAjudaSenha, setMostrarAjudaSenha] = useState(false)
+  const sessao = useSessao()
 
   function trocarAba(nova: Aba) {
     setAba(nova)
@@ -77,6 +80,18 @@ export default function Entrar() {
     // Sem sessão no cadastro = "Confirm email" ainda ligado no Supabase
     if (!data.session) return setErro('O cadastro está em manutenção. Avise a equipe do Radar de Pragas.')
     navegar(voltar, { replace: true })
+  }
+
+  // Já entrou como produtor: segue para onde ia
+  if (sessao.estado === 'produtor') return <Navigate to={voltar} replace />
+  // Conta de especialista não entra na área do produtor
+  if (sessao.estado === 'especialista') {
+    return (
+      <div className="mx-auto flex max-w-md flex-col gap-4">
+        <BotaoVoltar para="/" rotulo="Voltar para o início" />
+        <ContaDeEspecialista rotuloSair="Sair para entrar como produtor" />
+      </div>
+    )
   }
 
   return (

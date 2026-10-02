@@ -1,6 +1,6 @@
 import { Link, Outlet, useLocation, useNavigate } from 'react-router'
 import { FRASE_FONTE } from '../lib/fonte'
-import { sair, useSessaoProdutor } from '../lib/sessao'
+import { sair, useSessao } from '../lib/sessao'
 import AvisoConexao from './AvisoConexao'
 import BarraInferior from './BarraInferior'
 
@@ -8,23 +8,81 @@ import BarraInferior from './BarraInferior'
 export default function Layout() {
   const { pathname } = useLocation()
   const navegar = useNavigate()
-  const sessaoProdutor = useSessaoProdutor()
-  const produtorLogado = sessaoProdutor.estado === 'ok'
+  const sessao = useSessao()
+  const produtor = sessao.estado === 'produtor'
+  const especialista = sessao.estado === 'especialista'
+  const primeiroNome = sessao.estado === 'produtor' || sessao.estado === 'especialista' ? sessao.nome?.split(' ')[0] : null
 
-  // Área do especialista é para desktop: conteúdo mais largo e botão de sair
+  // Área do especialista é para desktop: conteúdo mais largo
   const areaEspecialista = pathname.startsWith('/especialista')
   const loginEspecialista = pathname === '/especialista/login'
-  const especialistaLogado = areaEspecialista && !loginEspecialista
+  const painel = areaEspecialista && !loginEspecialista
   const areaProdutor = pathname.startsWith('/produtor') && pathname !== '/produtor/entrar'
-  const mostrarSair = especialistaLogado || (areaProdutor && produtorLogado)
+  const inicio = pathname === '/'
   const largura = areaEspecialista ? 'max-w-7xl' : 'max-w-5xl'
 
-  // Barra inferior do celular: telas do produtor logado (e a inicial, quando ele já entrou)
-  const mostrarBarra = produtorLogado && (pathname === '/' || areaProdutor)
+  // Barra inferior do celular: só para conta de produtor, nas telas dele e na inicial
+  const mostrarBarra = produtor && (inicio || areaProdutor)
 
   async function sairDaConta() {
+    const eraEspecialista = especialista || areaEspecialista
     await sair()
-    navegar(areaEspecialista ? '/especialista/login' : '/produtor/entrar')
+    // Na landing, continua na landing; nas áreas, vai para o login correspondente
+    navegar(inicio ? '/' : eraEspecialista ? '/especialista/login' : '/produtor/entrar')
+  }
+
+  const botaoSair = (
+    <button onClick={sairDaConta} className="min-h-10 font-semibold underline">
+      Sair
+    </button>
+  )
+
+  // Lado direito do cabeçalho, conforme a tela e o papel de quem está logado
+  let acoes = null
+  if (painel) {
+    acoes = (
+      <>
+        <Link to="/" className="font-semibold underline">
+          Ver site público
+        </Link>
+        {botaoSair}
+      </>
+    )
+  } else if (inicio && produtor) {
+    acoes = (
+      <>
+        <span className="max-w-28 truncate">Olá, {primeiroNome ?? 'produtor'}</span>
+        <Link to="/produtor/chamados" className="hidden font-semibold underline md:block">
+          Meus chamados
+        </Link>
+        {botaoSair}
+      </>
+    )
+  } else if (inicio && especialista) {
+    acoes = (
+      <>
+        <Link to="/especialista" className="font-semibold underline">
+          Painel
+        </Link>
+        {botaoSair}
+      </>
+    )
+  } else if (inicio && sessao.estado === 'deslogado') {
+    acoes = (
+      <Link
+        to="/produtor/entrar"
+        className="flex min-h-10 items-center rounded-lg bg-white px-4 font-bold text-folha-800 hover:bg-folha-50"
+      >
+        Entrar
+      </Link>
+    )
+  } else if (areaProdutor && (produtor || especialista)) {
+    acoes = (
+      <>
+        {produtor && <span className="max-w-28 truncate">Olá, {primeiroNome ?? 'produtor'}</span>}
+        {botaoSair}
+      </>
+    )
   }
 
   return (
@@ -32,40 +90,10 @@ export default function Layout() {
       <header className="bg-folha-700 text-white">
         <div className={`mx-auto flex ${largura} items-center justify-between gap-2 px-4 py-3`}>
           {/* No painel, o logo leva à fila; fora dele (inclusive no login), ao início */}
-          <Link to={especialistaLogado ? '/especialista' : '/'} className="whitespace-nowrap text-lg font-bold">
+          <Link to={painel ? '/especialista' : '/'} className="whitespace-nowrap text-lg font-bold">
             🌱 Radar de Pragas{areaEspecialista && <span className="font-normal"> · Especialista</span>}
           </Link>
-          {mostrarSair && (
-            <div className="flex items-center gap-3 text-sm">
-              {areaProdutor && produtorLogado && (
-                <span className="max-w-28 truncate">Olá, {sessaoProdutor.nome?.split(' ')[0] ?? 'produtor'}</span>
-              )}
-              {especialistaLogado && (
-                <Link to="/" className="font-semibold underline">
-                  Ver site público
-                </Link>
-              )}
-              <button onClick={sairDaConta} className="min-h-10 font-semibold underline">
-                Sair
-              </button>
-            </div>
-          )}
-          {/* Landing: botão de login (ou atalho para quem já entrou) */}
-          {pathname === '/' &&
-            (produtorLogado ? (
-              <Link to="/produtor/chamados" className="hidden text-sm font-semibold underline md:block">
-                Meus chamados
-              </Link>
-            ) : (
-              sessaoProdutor.estado === 'deslogado' && (
-                <Link
-                  to="/produtor/entrar"
-                  className="flex min-h-10 items-center rounded-lg bg-white px-4 text-sm font-bold text-folha-800 hover:bg-folha-50"
-                >
-                  Entrar
-                </Link>
-              )
-            ))}
+          {acoes && <div className="flex items-center gap-3 text-sm">{acoes}</div>}
         </div>
       </header>
 
