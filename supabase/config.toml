@@ -1,0 +1,6 @@
+# Configuração mínima da Supabase CLI (usada no deploy das Edge Functions)
+project_id = "radar-de-pragas"
+
+[functions.triagem]
+# Exige um JWT válido (usuário logado, inclusive anônimo)
+verify_jwt = true
