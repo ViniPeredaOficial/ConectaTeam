@@ -7,7 +7,15 @@
 const LADO_MAIOR = 1280
 const QUALIDADE = 0.8
 
-export async function recomprimirFoto(arquivo: File): Promise<Blob> {
+// Área de recorte em proporção da imagem (0 a 1)
+export type Recorte = { x: number; y: number; largura: number; altura: number }
+
+export function recomprimirFoto(arquivo: Blob): Promise<Blob> {
+  return recortarFoto(arquivo, null)
+}
+
+// Recorta (opcional) e recomprime. Sem recorte, usa a imagem inteira.
+export async function recortarFoto(arquivo: Blob, recorte: Recorte | null): Promise<Blob> {
   let bitmap: ImageBitmap
   try {
     // "from-image" aplica a rotação do EXIF antes de descartá-lo (foto não sai deitada)
@@ -16,16 +24,22 @@ export async function recomprimirFoto(arquivo: File): Promise<Blob> {
     throw new Error('Não foi possível abrir esta foto. Tente tirar outra pela câmera.')
   }
 
-  const escala = Math.min(1, LADO_MAIOR / Math.max(bitmap.width, bitmap.height))
-  const largura = Math.round(bitmap.width * escala)
-  const altura = Math.round(bitmap.height * escala)
+  const area = recorte ?? { x: 0, y: 0, largura: 1, altura: 1 }
+  const origemX = area.x * bitmap.width
+  const origemY = area.y * bitmap.height
+  const origemL = area.largura * bitmap.width
+  const origemA = area.altura * bitmap.height
+
+  const escala = Math.min(1, LADO_MAIOR / Math.max(origemL, origemA))
+  const largura = Math.max(1, Math.round(origemL * escala))
+  const altura = Math.max(1, Math.round(origemA * escala))
 
   const canvas = document.createElement('canvas')
   canvas.width = largura
   canvas.height = altura
   const ctx = canvas.getContext('2d')
   if (!ctx) throw new Error('Seu navegador não conseguiu processar a foto.')
-  ctx.drawImage(bitmap, 0, 0, largura, altura)
+  ctx.drawImage(bitmap, origemX, origemY, origemL, origemA, 0, 0, largura, altura)
   bitmap.close()
 
   return new Promise((resolve, reject) => {
