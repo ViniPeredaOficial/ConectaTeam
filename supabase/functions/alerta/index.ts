@@ -152,6 +152,10 @@ Deno.serve(async (req) => {
     texto: mensagem.texto,
     imagem_url: imagemUrl,
     simulado: chamado.simulado,
+    // Para o mapa público (que não lê validacoes)
+    cultura: chamado.cultura,
+    praga_nome_comum: validacao.praga_nome_comum,
+    praga_nome_cientifico: validacao.praga_nome_cientifico,
   }
   let alertaId = existente?.id as string | undefined
   if (alertaId) {

@@ -112,6 +112,9 @@ export interface Alerta {
   enviado_em: string
   destinatarios: number // inscritos que receberam
   canal_enviado: boolean
+  cultura: string | null // cultura e praga copiadas para o mapa público
+  praga_nome_comum: string | null
+  praga_nome_cientifico: string | null
 }
 
 // Linha da view vw_fila_especialista (sem coordenada e sem produtor_id)

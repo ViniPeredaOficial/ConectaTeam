@@ -17,8 +17,10 @@ export type DadosMensagem = {
 // Monta o alerta em HTML do Telegram e em texto puro (o texto puro vai para a tabela alertas).
 // A última linha é sempre o aviso da CATI (regra 4 e CHECK do banco).
 export function montarMensagem(d: DadosMensagem): { titulo: string; html: string; texto: string } {
-  const nomePraga = d.pragaComum
-    ? `${escaparHtml(d.pragaComum)} (<i>${escaparHtml(d.pragaCientifica)}</i>)`
+  // O Agrofit junta vários nomes comuns com ";": no alerta vai só o primeiro
+  const comum = d.pragaComum?.split(';')[0].trim()
+  const nomePraga = comum
+    ? `${escaparHtml(comum)} (<i>${escaparHtml(d.pragaCientifica)}</i>)`
     : `<i>${escaparHtml(d.pragaCientifica)}</i>`
 
   const linhas = [

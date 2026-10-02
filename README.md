@@ -98,7 +98,32 @@ Para medir a latência do Gemini direto da sua máquina, sem passar pelo Supabas
 
 ### Dados de demonstração
 
-[supabase/seed/demo.sql](supabase/seed/demo.sql) cria 7 chamados simulados com as sugestões da IA já gravadas. Eles cobrem um caso de IA confiante, um de IA em dúvida, um de foto ruim e um de IA fora do ar, e garantem a apresentação mesmo sem o Gemini. Antes de rodar, crie o usuário `produtor.demo@radardepragas.app` em Authentication → Users. Depois rode o arquivo no SQL Editor; ele pode ser executado de novo, porque apaga e recria a demo.
+[supabase/seed/demo.sql](supabase/seed/demo.sql) cria, na **região de Araraquara**, 15 chamados espalhados pelas últimas 3 semanas:
+- **8 analisados com alerta**. A IA acerta 6 deles, para a taxa de acerto do painel ter um valor real de exemplo.
+- **5 em análise**. Entre eles há um com a IA fora do ar e outro com foto ruim.
+- **2 descartados**.
+
+Sobre o conteúdo:
+- Todos os registros têm `simulado = true` e aparecem com o selo "simulado".
+- As pragas e os produtos vêm do Agrofit. Só a confiança da IA e os textos são simulados.
+- Os chamados **não têm imagens**, o que elimina o risco de licença e de fotos de pessoas.
+- Os alertas simulados **não são enviados ao Telegram**.
+
+**Rodar**: é preciso ter pelo menos um usuário especialista. Abra o SQL Editor, cole o arquivo e clique em Run. O seed pode ser executado de novo, porque apaga e recria a demo. Se existir o usuário `produtor.demo@radardepragas.app`, ele vira o autor dos chamados; senão, o especialista assume esse papel.
+
+**Limpar**: rode [supabase/seed/limpar_demo.sql](supabase/seed/limpar_demo.sql) no SQL Editor. Ele apaga tudo com `simulado = true`, e sugestões, validações, localizações e alertas vão junto em cascata.
+
+## Mapa de alertas
+
+O componente [MapaAlertas](src/components/MapaAlertas.tsx) usa react-leaflet com tiles do OpenStreetMap, com atribuição visível. Ele aparece em dois lugares: na tela inicial `/`, como visão pública, e na aba "Mapa de alertas" do painel do especialista.
+
+Como ele desenha os dados:
+- **Um círculo por município** com alerta nos últimos 30 dias, posicionado no **centroide do município**, nunca no ponto do produtor.
+- O tamanho do círculo segue o número de alertas, e a cor segue a praga predominante.
+- O popup mostra praga, cultura, data e o selo "simulado".
+- Há filtros por cultura e por período (7, 15 ou 30 dias).
+
+O mapa lê só tabelas públicas (`alertas` e `municipios`). Para não pesar a tela do produtor, o Leaflet só é baixado quando o mapa aparece.
 
 ## Alertas no Telegram
 

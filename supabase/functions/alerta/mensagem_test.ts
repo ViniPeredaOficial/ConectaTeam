@@ -37,6 +37,10 @@ Deno.test('marca dado simulado e omite campos vazios', () => {
 Deno.test('título em texto puro', () => {
   assertEquals(montarMensagem(base).titulo, 'Alerta de praga: Traça-do-tomateiro (Tuta absoluta)')
   assertEquals(montarMensagem({ ...base, pragaComum: null }).titulo, 'Alerta de praga: Tuta absoluta')
+  assertEquals(
+    montarMensagem({ ...base, pragaComum: 'ferrugem-do-cafeeiro; Ferrugem', pragaCientifica: 'Hemileia vastatrix' }).titulo,
+    'Alerta de praga: ferrugem-do-cafeeiro (Hemileia vastatrix)',
+  )
 })
 
 Deno.test('mensagem normal cabe na legenda de foto (1024)', () => {
