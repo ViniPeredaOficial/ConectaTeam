@@ -123,18 +123,28 @@ export default function MeusChamados() {
   }, [usuarioId, carregar])
 
   if (carregando) {
-    return <p className="text-center text-gray-600">Carregando...</p>
+    return (
+      <div role="status" className="mx-auto max-w-2xl animate-pulse">
+        <span className="sr-only">Carregando seus chamados...</span>
+        <div className="h-8 w-48 rounded-lg bg-folha-200" />
+        <div className="mt-5 h-24 rounded-2xl bg-white" />
+        <div className="mt-4 h-36 rounded-2xl bg-white" />
+      </div>
+    )
   }
 
   return (
-    <div className="mx-auto flex max-w-md flex-col gap-4">
+    <div className="mx-auto flex max-w-2xl flex-col gap-5">
       <BotaoVoltar para="/" />
-      <h1 className="text-2xl font-bold text-folha-800">Meus chamados</h1>
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight text-folha-900">Meus chamados</h1>
+        <p className="mt-1 text-sm text-gray-600">Acompanhe a análise e as respostas dos problemas que você reportou.</p>
+      </div>
       <AvisoTelegram />
 
       {erro && (
-        <div className="rounded-xl bg-red-50 p-3 text-red-800">
-          Não conseguimos carregar.{' '}
+        <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+          Não conseguimos carregar seus chamados.{' '}
           <button className="font-semibold underline" onClick={carregar}>
             Tentar de novo
           </button>
@@ -142,88 +152,97 @@ export default function MeusChamados() {
       )}
 
       {!erro && chamados.length === 0 && (
-        <p className="text-gray-700">Você ainda não enviou nenhum problema por aqui.</p>
+        <div className="rounded-2xl border border-folha-200 bg-white px-5 py-8 text-center">
+          <h2 className="text-lg font-bold text-folha-900">Nenhum chamado por enquanto</h2>
+          <p className="mt-2 text-sm text-gray-600">Quando você reportar um problema, poderá acompanhar a análise aqui.</p>
+        </div>
       )}
 
-      {chamados.map((c) => {
-        const selo = SELOS[c.status]
-        const resposta = primeiraResposta(c.validacoes)
-        return (
-          <article key={c.id} className="rounded-2xl bg-white p-4 shadow-sm">
-            <div className="flex gap-3">
-              {c.fotoUrl ? (
-                <div className="h-20 w-20 shrink-0">
-                  <FotoAmpliavel
-                    src={c.fotoUrl}
-                    alt={`Foto do chamado de ${c.cultura}`}
-                    className="h-20 w-20 rounded-xl object-cover"
-                    mostrarSelo={false}
-                  />
+      <div className="flex flex-col gap-4">
+        {chamados.map((c) => {
+          const selo = SELOS[c.status]
+          const resposta = primeiraResposta(c.validacoes)
+          return (
+            <article key={c.id} className="rounded-2xl border border-folha-200 bg-white p-4 sm:p-5">
+              <div className="flex gap-3">
+                {c.fotoUrl ? (
+                  <div className="h-20 w-20 shrink-0">
+                    <FotoAmpliavel
+                      src={c.fotoUrl}
+                      alt={`Foto do chamado de ${c.cultura}`}
+                      className="h-20 w-20 rounded-xl object-cover"
+                      mostrarSelo={false}
+                    />
+                  </div>
+                ) : (
+                  <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-folha-50 text-3xl">
+                    {iconeDaCultura(c.cultura)}
+                  </div>
+                )}
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${selo.classes}`}>
+                      {selo.texto}
+                    </span>
+                    {c.simulado && (
+                      <span className="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-semibold text-purple-800">
+                        demonstração
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-1 font-semibold text-gray-900">
+                    {iconeDaCultura(c.cultura)} {c.cultura}
+                    {c.municipios?.nome && <span className="font-normal text-gray-600"> · {c.municipios.nome}</span>}
+                  </p>
+                  <p className="text-sm text-gray-500">Enviado em {formatarData(c.criado_em)}</p>
                 </div>
-              ) : (
-                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-folha-50 text-3xl">
-                  {iconeDaCultura(c.cultura)}
+              </div>
+
+              {c.descricao && <p className="mt-3 text-sm leading-relaxed text-gray-700">“{c.descricao}”</p>}
+
+              {c.status === 'em_analise' && (
+                <p role="status" className="mt-3 border-t border-folha-100 pt-3 text-sm text-gray-600">
+                  Aguardando o especialista. Esta tela atualiza sozinha.
+                </p>
+              )}
+
+              {c.status === 'analisado' && resposta && (
+                <div className="mt-4 rounded-xl border border-folha-100 bg-folha-50 p-4">
+                  <p className="text-lg font-bold text-folha-900">
+                    {resposta.praga_nome_comum ?? resposta.praga_nome_cientifico}
+                  </p>
+                  <p className="text-sm italic text-gray-600">{resposta.praga_nome_cientifico}</p>
+                  {resposta.como_identificar && (
+                    <div className="mt-3">
+                      <h3 className="text-sm font-semibold text-gray-900">Como identificar</h3>
+                      <p className="mt-1 text-sm leading-relaxed text-gray-800">{resposta.como_identificar}</p>
+                    </div>
+                  )}
+                  {resposta.manejo && (
+                    <div className="mt-3">
+                      <h3 className="text-sm font-semibold text-gray-900">Manejo</h3>
+                      <p className="mt-1 text-sm leading-relaxed text-gray-800">{resposta.manejo}</p>
+                    </div>
+                  )}
+                  <p className="mt-3 border-t border-folha-200 pt-3 text-sm font-semibold text-amber-900">
+                    Procure a assistência técnica (CATI) antes de aplicar qualquer produto.
+                  </p>
                 </div>
               )}
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className={`rounded-full px-2 py-0.5 text-sm font-semibold ${selo.classes}`}>
-                    {selo.texto}
-                  </span>
-                  {c.simulado && (
-                    <span className="rounded-full bg-purple-100 px-2 py-0.5 text-sm font-semibold text-purple-800">
-                      simulado
-                    </span>
-                  )}
-                </div>
-                <p className="mt-1 font-semibold">
-                  {iconeDaCultura(c.cultura)} {c.cultura}
-                  {c.municipios?.nome && <span className="font-normal text-gray-600"> · {c.municipios.nome}</span>}
+
+              {c.status === 'descartado' && (
+                <p className="mt-3 border-t border-folha-100 pt-3 text-sm text-gray-600">
+                  O especialista encerrou este chamado. Se o problema continuar, envie uma nova foto.
                 </p>
-                <p className="text-sm text-gray-500">{formatarData(c.criado_em)}</p>
-              </div>
-            </div>
+              )}
+            </article>
+          )
+        })}
+      </div>
 
-            {c.descricao && <p className="mt-3 text-gray-700">“{c.descricao}”</p>}
-
-            {c.status === 'em_analise' && (
-              <p className="mt-3 text-sm text-gray-600">Aguardando o especialista. Esta tela atualiza sozinha.</p>
-            )}
-
-            {c.status === 'analisado' && resposta && (
-              <div className="mt-3 rounded-xl bg-folha-50 p-3">
-                <p className="text-lg font-bold text-folha-800">
-                  {resposta.praga_nome_comum ?? resposta.praga_nome_cientifico}
-                </p>
-                <p className="text-sm italic text-gray-600">{resposta.praga_nome_cientifico}</p>
-                {resposta.como_identificar && (
-                  <>
-                    <h3 className="mt-2 font-semibold">Como identificar</h3>
-                    <p className="text-gray-800">{resposta.como_identificar}</p>
-                  </>
-                )}
-                {resposta.manejo && (
-                  <>
-                    <h3 className="mt-2 font-semibold">Manejo</h3>
-                    <p className="text-gray-800">{resposta.manejo}</p>
-                  </>
-                )}
-                <p className="mt-2 text-sm font-semibold text-amber-900">
-                  Procure a assistência técnica (CATI) antes de aplicar qualquer produto.
-                </p>
-              </div>
-            )}
-
-            {c.status === 'descartado' && (
-              <p className="mt-3 text-sm text-gray-600">
-                O especialista encerrou este chamado. Se o problema continuar, envie uma nova foto.
-              </p>
-            )}
-          </article>
-        )
-      })}
-
-      <BotaoGrande to="/produtor">Reportar novo problema</BotaoGrande>
+      <div className="pt-1">
+        <BotaoGrande to="/produtor">Reportar novo problema</BotaoGrande>
+      </div>
     </div>
   )
 }

@@ -54,25 +54,44 @@ export default function AvisoTelegram() {
 
   if (estado === 'ligado') {
     return (
-      <div className="flex items-center justify-between gap-3 rounded-2xl bg-folha-100 p-4 text-folha-900">
-        <span>✅ Avisos no Telegram ligados: você recebe uma mensagem quando o especialista responder.</span>
-        <button onClick={desligar} className="shrink-0 text-sm font-semibold underline">
-          Desligar
+      <section
+        aria-labelledby="titulo-aviso-telegram"
+        className="relative overflow-hidden rounded-3xl bg-folha-800 p-5 pr-28 text-white sm:p-7 sm:pr-32"
+      >
+        <h2 id="titulo-aviso-telegram" className="text-lg font-bold">
+          Avisos do Telegram ativados
+        </h2>
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-folha-50">
+          Você recebe uma mensagem quando o especialista responder ao seu chamado.
+        </p>
+        <button
+          onClick={desligar}
+          className="mt-4 min-h-11 rounded-xl border border-white/70 px-4 text-sm font-semibold text-white hover:bg-folha-700"
+        >
+          Desligar avisos
         </button>
-      </div>
+      </section>
     )
   }
 
   return (
-    <div className="rounded-2xl bg-white p-4 shadow-sm">
-      <p className="font-semibold text-gray-900">📲 Quer ser avisado no Telegram quando o especialista responder?</p>
+    <section
+      aria-labelledby="titulo-aviso-telegram"
+      className="relative overflow-hidden rounded-3xl bg-folha-800 p-5 pr-28 text-white sm:p-7 sm:pr-32"
+    >
+      <h2 id="titulo-aviso-telegram" className="text-lg font-bold">
+        Receba as respostas pelo Telegram
+      </h2>
+      <p className="mt-2 max-w-2xl text-sm leading-relaxed text-folha-50">
+        Vincule sua conta para receber uma mensagem quando o especialista analisar seu chamado.
+      </p>
       {!link ? (
         <button
           onClick={gerarLink}
           disabled={gerando}
-          className="mt-3 flex min-h-12 w-full items-center justify-center rounded-xl bg-[#229ED9] px-4 text-lg font-semibold text-white disabled:opacity-50"
+          className="mt-4 flex min-h-11 items-center justify-center rounded-xl bg-white px-5 text-sm font-bold text-folha-800 hover:bg-folha-50 disabled:opacity-50"
         >
-          {gerando ? 'Preparando...' : 'Receber aviso no Telegram'}
+          {gerando ? 'Preparando...' : 'Ativar avisos no Telegram'}
         </button>
       ) : (
         <>
@@ -80,19 +99,19 @@ export default function AvisoTelegram() {
             href={link}
             target="_blank"
             rel="noreferrer"
-            className="mt-3 flex min-h-12 w-full items-center justify-center rounded-xl bg-[#229ED9] px-4 text-lg font-semibold text-white"
+            className="mt-4 flex min-h-11 items-center justify-center rounded-xl bg-white px-5 text-sm font-bold text-folha-800 hover:bg-folha-50"
           >
             Abrir o Telegram
           </a>
-          <p className="mt-2 text-sm text-gray-600">
+          <p className="mt-3 text-sm text-folha-50">
             No Telegram, toque em <strong>Iniciar</strong>. Depois volte aqui. O link vale por 30 minutos.
           </p>
-          <button onClick={conferir} className="mt-1 text-sm font-semibold text-folha-700 underline">
+          <button onClick={conferir} className="mt-2 text-sm font-semibold text-white underline underline-offset-2">
             Já toquei em Iniciar
           </button>
         </>
       )}
-      {erro && <p className="mt-2 text-sm text-red-700">{erro}</p>}
-    </div>
+      {erro && <p role="alert" className="mt-3 text-sm font-semibold text-red-200">{erro}</p>}
+    </section>
   )
 }

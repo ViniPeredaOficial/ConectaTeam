@@ -5,13 +5,14 @@ export default function Telegram() {
   return (
     <section
       aria-labelledby="titulo-telegram"
-      className="grid items-center gap-4 rounded-2xl bg-folha-700 p-5 text-white md:grid-cols-[1fr_auto]"
+      className="grid items-center gap-6 overflow-hidden rounded-3xl bg-folha-800 p-5 text-white sm:p-7 lg:grid-cols-[1fr_auto]"
     >
       <div>
-        <h2 id="titulo-telegram" className="text-xl font-bold">
+        <p className="text-xs font-bold uppercase tracking-[0.16em] text-folha-200">Alertas no seu celular</p>
+        <h2 id="titulo-telegram" className="mt-2 text-2xl font-bold leading-tight tracking-tight sm:text-3xl">
           📣 Receba os alertas no Telegram
         </h2>
-        <p className="mt-2 text-folha-50">
+        <p className="mt-3 max-w-2xl text-base leading-7 text-folha-50">
           Os alertas confirmados por especialistas saem no canal da região de Araraquara. Quer só os da sua cidade?
           Fale com o nosso bot e envie <strong>/start</strong>.
         </p>
@@ -34,13 +35,21 @@ export default function Telegram() {
           </a>
         </div>
       </div>
-      <img
-        src="/qr-canal-telegram.png"
-        alt="QR code do canal Radar de Pragas no Telegram"
-        width={160}
-        height={160}
-        className="mx-auto rounded-xl bg-white p-2"
-      />
+      <a
+        href={URL_CANAL}
+        target="_blank"
+        rel="noreferrer"
+        aria-label="Abrir o canal do Radar de Pragas no Telegram pelo QR code"
+        className="mx-auto block rounded-xl bg-white p-2 focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-white"
+      >
+        <img
+          src="/qr-canal-telegram.png"
+          alt="QR code do canal Radar de Pragas no Telegram"
+          width={160}
+          height={160}
+          className="h-36 w-36 rounded-lg sm:h-40 sm:w-40"
+        />
+      </a>
     </section>
   )
 }

@@ -27,6 +27,7 @@ export default function NovoChamado() {
   // Dados de apoio
   const [culturas, setCulturas] = useState<string[]>([])
   const [municipios, setMunicipios] = useState<Municipio[]>([])
+  const [carregandoListas, setCarregandoListas] = useState(true)
   const [erroCarregar, setErroCarregar] = useState(false)
 
   // Campos do formulário
@@ -59,6 +60,13 @@ export default function NovoChamado() {
         console.error('Falha ao carregar dados', e)
         setErroCarregar(true)
       })
+      .finally(() => setCarregandoListas(false))
+  }
+
+  function tentarCarregarListas() {
+    setCarregandoListas(true)
+    setErroCarregar(false)
+    carregar()
   }
 
   useEffect(carregar, [])
@@ -214,32 +222,45 @@ export default function NovoChamado() {
   // Tela de sucesso
   if (envio === 'sucesso') {
     return (
-      <div className="mx-auto flex max-w-md flex-col gap-4 pt-6 text-center">
-        <div className="text-6xl">✅</div>
-        <h1 className="text-2xl font-bold text-folha-800">Recebemos!</h1>
-        <p className="text-lg text-gray-700">Um especialista vai analisar. Você será avisado aqui.</p>
-        <BotaoGrande to="/produtor/chamados">Ver meus chamados</BotaoGrande>
-        <BotaoGrande variante="secundario" onClick={novoChamado}>
-          Enviar outro problema
-        </BotaoGrande>
+      <div className="mx-auto flex max-w-xl flex-col gap-4 py-4 sm:py-8">
+        <section className="rounded-2xl border border-folha-200 bg-white p-6 text-center sm:p-8">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-folha-100 text-2xl font-bold text-folha-800">
+            ✓
+          </div>
+          <h1 className="mt-4 text-2xl font-bold text-folha-900">Recebemos seu relato</h1>
+          <p className="mt-2 text-sm leading-relaxed text-gray-600">
+            Um especialista vai analisar. Você poderá acompanhar a resposta em “Meus chamados”.
+          </p>
+          <div className="mt-6 flex flex-col gap-3">
+            <BotaoGrande to="/produtor/chamados">Ver meus chamados</BotaoGrande>
+            <BotaoGrande variante="secundario" onClick={novoChamado}>
+              Enviar outro problema
+            </BotaoGrande>
+          </div>
+        </section>
       </div>
     )
   }
 
   return (
-    <div className="mx-auto flex max-w-md flex-col gap-4">
+    <div className="mx-auto flex max-w-xl flex-col gap-4">
       <BotaoVoltar para="/" />
-      <div className="flex items-center justify-between gap-2">
-        <h1 className="text-2xl font-bold text-folha-800">Reportar praga</h1>
-        <Link to="/produtor/chamados" className="text-sm font-semibold text-folha-700 underline">
+      <div className="flex flex-wrap items-end justify-between gap-2">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-folha-900">Reportar um problema</h1>
+          <p className="mt-1 text-sm leading-relaxed text-gray-600">
+            Envie os detalhes para um especialista analisar.
+          </p>
+        </div>
+        <Link to="/produtor/chamados" className="text-sm font-semibold text-folha-700 underline underline-offset-2">
           Meus chamados
         </Link>
       </div>
 
       {erroCarregar && (
-        <div className="rounded-xl bg-red-50 p-3 text-red-800">
+        <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">
           Não conseguimos carregar as listas.{' '}
-          <button className="font-semibold underline" onClick={carregar}>
+          <button className="font-semibold underline" onClick={tentarCarregarListas}>
             Tentar de novo
           </button>
         </div>
@@ -250,7 +271,7 @@ export default function NovoChamado() {
         {previa && (
           <img src={previa} alt="Prévia da foto" className="mb-3 max-h-72 w-full rounded-xl object-cover" />
         )}
-        <label className="flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-folha-500 bg-folha-50 px-4 py-3 text-lg font-semibold text-folha-700">
+        <label className="flex min-h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-folha-400 bg-folha-50 px-4 py-3 text-base font-semibold text-folha-800 transition-colors hover:bg-folha-100">
           📷 {foto ? 'Trocar foto' : 'Tirar foto'}
           <input
             type="file"
@@ -273,10 +294,10 @@ export default function NovoChamado() {
               type="button"
               onClick={() => setCultura(c)}
               aria-pressed={cultura === c}
-              className={`flex min-h-24 flex-col items-center justify-center gap-1 rounded-xl border-2 text-base font-semibold ${
+              className={`flex min-h-24 flex-col items-center justify-center gap-1 rounded-xl border px-2 text-base font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-folha-600 ${
                 cultura === c
-                  ? 'border-folha-600 bg-folha-600 text-white'
-                  : 'border-gray-200 bg-white text-gray-800'
+                  ? 'border-folha-700 bg-folha-700 text-white'
+                  : 'border-folha-200 bg-white text-gray-800 hover:border-folha-400 hover:bg-folha-50'
               }`}
             >
               <span className="text-3xl">{iconeDaCultura(c)}</span>
@@ -284,6 +305,16 @@ export default function NovoChamado() {
             </button>
           ))}
         </div>
+        {carregandoListas && culturas.length === 0 && (
+          <p role="status" className="mt-3 text-sm text-gray-600">
+            Carregando culturas...
+          </p>
+        )}
+        {!carregandoListas && !erroCarregar && culturas.length === 0 && (
+          <p className="mt-3 text-sm text-amber-800">
+            Nenhuma cultura disponível no momento. Tente carregar as listas novamente.
+          </p>
+        )}
       </Passo>
 
       {/* 3. Descrição */}
@@ -294,7 +325,7 @@ export default function NovoChamado() {
           maxLength={MAX_DESCRICAO}
           rows={4}
           placeholder="Ex.: manchas marrons nas folhas de baixo"
-          className="w-full rounded-xl border-2 border-gray-200 p-3 text-base focus:border-folha-500 focus:outline-none"
+          className="w-full rounded-xl border border-folha-300 bg-white p-3 text-base focus:border-folha-600 focus:outline-2 focus:outline-folha-500"
         />
         <p className="text-right text-sm text-gray-500">
           {descricao.length}/{MAX_DESCRICAO}
@@ -315,46 +346,45 @@ export default function NovoChamado() {
         )}
 
         {estadoLocal === 'achou' && nomeMunicipio && (
-          <p className="mt-3 rounded-xl bg-folha-50 p-3 text-lg">
+          <p className="mt-3 rounded-xl border border-folha-100 bg-folha-50 p-3 text-base text-folha-900">
             Município: <strong>{nomeMunicipio}</strong>
           </p>
         )}
 
-        {avisoLocal && <p className="mt-3 text-sm text-amber-800">{avisoLocal}</p>}
-
-        {(estadoLocal === 'manual' || estadoLocal === 'achou') && (
-          <label className="mt-3 block">
-            <span className="text-sm text-gray-700">
-              {estadoLocal === 'achou' ? 'Não é esse? Escolha outro:' : 'Município (SP):'}
-            </span>
-            <select
-              value={municipioCod ?? ''}
-              onChange={(e) => escolherMunicipioNaLista(e.target.value)}
-              className="mt-1 min-h-12 w-full rounded-xl border-2 border-gray-200 bg-white px-3 text-base"
-            >
-              <option value="">Selecione...</option>
-              {municipios.map((m) => (
-                <option key={m.cod_ibge} value={m.cod_ibge}>
-                  {m.nome}
-                </option>
-              ))}
-            </select>
-          </label>
+        {avisoLocal && (
+          <p role="status" className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+            {avisoLocal}
+          </p>
         )}
 
-        {estadoLocal === 'inicial' && (
-          <button
-            type="button"
-            className="mt-3 text-sm font-semibold text-folha-700 underline"
-            onClick={() => setEstadoLocal('manual')}
+        <label className="mt-3 block">
+          <span className="text-sm font-semibold text-gray-800">
+            {estadoLocal === 'achou' ? 'Não é esse? Escolha outro:' : 'Município (SP):'}
+          </span>
+          <select
+            value={municipioCod ?? ''}
+            onChange={(e) => escolherMunicipioNaLista(e.target.value)}
+            disabled={carregandoListas || erroCarregar || municipios.length === 0}
+            className="mt-1 min-h-12 w-full rounded-xl border border-folha-300 bg-white px-3 text-base focus:border-folha-600 focus:outline-2 focus:outline-folha-500 disabled:bg-gray-100"
           >
-            Prefiro escolher na lista
-          </button>
-        )}
+            <option value="">
+              {carregandoListas
+                ? 'Carregando municípios...'
+                : municipios.length === 0
+                  ? 'Nenhum município disponível'
+                  : 'Selecione...'}
+            </option>
+            {municipios.map((m) => (
+              <option key={m.cod_ibge} value={m.cod_ibge}>
+                {m.nome}
+              </option>
+            ))}
+          </select>
+        </label>
       </Passo>
 
       {erroEnvio && (
-        <div role="alert" className="rounded-xl bg-red-50 p-3 text-red-800">
+        <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">
           {erroEnvio}
         </div>
       )}

@@ -129,7 +129,7 @@ export default function RiscoClima({ locais, mostrarInicial = 6 }: Props) {
           {todos ? 'Mostrar menos' : `Ver todos os ${ordenados.length} municípios`}
         </button>
       )}
-      <NotaClima />
+      {todos && <NotaClima />}
     </div>
   )
 }

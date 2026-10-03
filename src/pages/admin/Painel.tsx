@@ -39,7 +39,7 @@ export default function Painel() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex gap-1 self-start rounded-xl bg-white p-1 shadow-sm" role="tablist">
+      <div className="flex gap-1 self-start rounded-xl border border-folha-200 bg-white p-1" role="tablist" aria-label="Seções da administração">
         {(
           [
             ['visao', 'Visão geral'],
@@ -51,8 +51,8 @@ export default function Painel() {
             role="tab"
             aria-selected={aba === valor}
             onClick={() => setParametros(valor === 'especialistas' ? { aba: 'especialistas' } : {})}
-            className={`rounded-lg px-4 py-2 text-lg font-bold ${
-              aba === valor ? 'bg-folha-600 text-white' : 'text-folha-800 hover:bg-folha-50'
+            className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${
+              aba === valor ? 'bg-folha-700 text-white' : 'text-folha-800 hover:bg-folha-50'
             }`}
           >
             {rotulo}
@@ -83,7 +83,7 @@ function VisaoGeral() {
 
   if (erro) {
     return (
-      <div className="rounded-xl bg-red-50 p-4 text-red-800">
+      <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
         Não conseguimos carregar o painel.{' '}
         <button className="font-semibold underline" onClick={carregar}>
           Tentar de novo
@@ -91,7 +91,7 @@ function VisaoGeral() {
       </div>
     )
   }
-  if (!dados) return <p className="text-gray-600">Carregando o painel...</p>
+  if (!dados) return <p role="status" className="rounded-2xl border border-folha-200 bg-white p-5 text-sm text-gray-600">Carregando o painel...</p>
 
   const { usuarios, chamados, alertas } = dados
 
@@ -99,7 +99,7 @@ function VisaoGeral() {
     <div className="flex flex-col gap-6">
       {/* Cabeçalho e filtros */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold text-folha-800">Painel executivo</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-folha-900">Painel executivo</h1>
         <div className="flex flex-wrap items-center gap-4 text-sm">
           <label className="flex items-center gap-2">
             <input
@@ -113,13 +113,13 @@ function VisaoGeral() {
           <span className="text-gray-500">
             Atualizado às {atualizadoEm?.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
           </span>
-          <button onClick={carregar} className="font-semibold text-folha-700 underline">
+          <button onClick={carregar} className="font-semibold text-folha-700 underline underline-offset-2">
             Atualizar
           </button>
         </div>
       </div>
       {incluirSimulados && (chamados.simulados > 0 || alertas.simulados > 0) && (
-        <p className="rounded-lg bg-purple-50 p-3 text-sm text-purple-900">
+        <p className="rounded-xl border border-purple-200 bg-purple-50 p-3 text-sm text-purple-900">
           Os números incluem dados <strong>simulados</strong> de demonstração: {chamados.simulados} chamados e{' '}
           {alertas.simulados} alertas. Desmarque "Incluir dados simulados" para ver só os dados reais.
         </p>
@@ -127,7 +127,7 @@ function VisaoGeral() {
 
       {/* Alertas: hoje, semana, mês */}
       <section aria-labelledby="titulo-alertas">
-        <h2 id="titulo-alertas" className="mb-2 text-lg font-bold text-folha-800">
+        <h2 id="titulo-alertas" className="mb-3 text-xl font-bold text-folha-900">
           Alertas regionais
         </h2>
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
@@ -169,23 +169,23 @@ function VisaoGeral() {
       </section>
 
       {/* Série diária */}
-      <section className="rounded-2xl bg-white p-5 shadow-sm">
-        <h2 className="text-lg font-bold text-folha-800">Chamados e alertas por dia</h2>
+      <section className="rounded-2xl border border-folha-200 bg-white p-4 sm:p-5">
+        <h2 className="text-lg font-bold text-folha-900">Chamados e alertas por dia</h2>
         <p className="mb-3 text-sm text-gray-600">Últimos 30 dias. Passe o mouse para ver os números de cada dia.</p>
         <GraficoDiario pontos={dados.por_dia} />
       </section>
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Pragas */}
-        <section className="rounded-2xl bg-white p-5 shadow-sm">
-          <h2 className="text-lg font-bold text-folha-800">Pragas com mais alertas</h2>
+        <section className="rounded-2xl border border-folha-200 bg-white p-4 sm:p-5">
+          <h2 className="text-lg font-bold text-folha-900">Pragas com mais alertas</h2>
           <p className="mb-4 text-sm text-gray-600">Número de alertas regionais por praga.</p>
           <GraficoPragas pragas={dados.pragas} />
         </section>
 
         {/* Municípios × pragas */}
-        <section className="rounded-2xl bg-white p-5 shadow-sm">
-          <h2 className="text-lg font-bold text-folha-800">Municípios afetados</h2>
+        <section className="rounded-2xl border border-folha-200 bg-white p-4 sm:p-5">
+          <h2 className="text-lg font-bold text-folha-900">Municípios afetados</h2>
           <p className="mb-3 text-sm text-gray-600">Alertas por município e praga, do maior para o menor.</p>
           {dados.municipios.length === 0 ? (
             <p className="text-gray-600">Nenhum alerta no período.</p>
@@ -218,8 +218,8 @@ function VisaoGeral() {
 
       {/* Culturas */}
       {dados.culturas.length > 0 && (
-        <section className="rounded-2xl bg-white p-5 shadow-sm">
-          <h2 className="mb-3 text-lg font-bold text-folha-800">Chamados por cultura</h2>
+        <section className="rounded-2xl border border-folha-200 bg-white p-4 sm:p-5">
+          <h2 className="mb-3 text-lg font-bold text-folha-900">Chamados por cultura</h2>
           <ul className="flex flex-wrap gap-3">
             {dados.culturas.map((c) => (
               <li key={c.cultura} className="rounded-xl bg-folha-50 px-4 py-2">
@@ -234,8 +234,8 @@ function VisaoGeral() {
       )}
 
       {/* Mapa */}
-      <section className="rounded-2xl bg-white p-5 shadow-sm">
-        <h2 className="mb-3 text-lg font-bold text-folha-800">Mapa de alertas</h2>
+      <section className="rounded-2xl border border-folha-200 bg-white p-4 sm:p-5">
+        <h2 className="mb-3 text-lg font-bold text-folha-900">Mapa de alertas</h2>
         <Suspense fallback={<div className="h-[480px] animate-pulse rounded-xl bg-gray-100" />}>
           <MapaAlertas altura="h-[480px]" rolagem />
         </Suspense>
@@ -246,8 +246,8 @@ function VisaoGeral() {
 
 function Indicador({ rotulo, valor }: { rotulo: string; valor: number }) {
   return (
-    <div className="rounded-2xl bg-white p-4 shadow-sm">
-      <p className="text-4xl font-bold text-folha-800">{valor.toLocaleString('pt-BR')}</p>
+    <div className="rounded-2xl border border-folha-200 bg-white p-4">
+      <p className="text-4xl font-bold text-folha-900">{valor.toLocaleString('pt-BR')}</p>
       <p className="text-sm text-gray-600">{rotulo}</p>
     </div>
   )
@@ -255,8 +255,8 @@ function Indicador({ rotulo, valor }: { rotulo: string; valor: number }) {
 
 function Bloco({ titulo, children }: { titulo: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-2xl bg-white p-5 shadow-sm">
-      <h2 className="mb-2 text-lg font-bold text-folha-800">{titulo}</h2>
+    <div className="rounded-2xl border border-folha-200 bg-white p-4 sm:p-5">
+      <h2 className="mb-2 text-lg font-bold text-folha-900">{titulo}</h2>
       <dl className="flex flex-col">{children}</dl>
     </div>
   )
