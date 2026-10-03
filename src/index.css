@@ -1,21 +1,39 @@
 @import "tailwindcss";
 
-/* Paleta verde-folha e fonte do sistema */
+html {
+  scrollbar-gutter: stable;
+}
+
+/* Paleta Bloom: verde do logotipo e vermelho da joaninha */
 @theme {
   --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
-  --color-folha-50: #f1f8f1;
-  --color-folha-100: #dcefdc;
-  --color-folha-200: #b9dfba;
-  --color-folha-300: #8cc98e;
-  --color-folha-400: #5dad61;
-  --color-folha-500: #3d9142;
-  --color-folha-600: #2f7d32;
-  --color-folha-700: #256228;
-  --color-folha-800: #1f4e22;
-  --color-folha-900: #1a401d;
+  --color-folha-50: #f3f6f4;
+  --color-folha-100: #e4ebe7;
+  --color-folha-200: #c9d7d0;
+  --color-folha-300: #a5bbae;
+  --color-folha-400: #7a9988;
+  --color-folha-500: #567765;
+  --color-folha-600: #3f6252;
+  --color-folha-700: #2b4c40;
+  --color-folha-800: #233f35;
+  --color-folha-900: #1b322a;
+
+  --color-joaninha-50: #fff1f1;
+  --color-joaninha-100: #ffe0e0;
+  --color-joaninha-500: #e02b2e;
+  --color-joaninha-600: #cc060a;
+  --color-joaninha-700: #a60000;
 }
 
 body {
   @apply bg-folha-50 text-gray-900 antialiased;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
 }
