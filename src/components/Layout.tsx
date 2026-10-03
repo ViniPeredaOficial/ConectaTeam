@@ -1,6 +1,6 @@
 import { Link, Outlet, useLocation, useNavigate } from 'react-router'
 import { FRASE_FONTE } from '../lib/fonte'
-import { sair, useSessao } from '../lib/sessao'
+import { PAINEL_DO_PAPEL, sair, useSessao } from '../lib/sessao'
 import AvisoConexao from './AvisoConexao'
 import BarraInferior from './BarraInferior'
 
@@ -10,25 +10,26 @@ export default function Layout() {
   const navegar = useNavigate()
   const sessao = useSessao()
   const produtor = sessao.estado === 'produtor'
-  const especialista = sessao.estado === 'especialista'
-  const primeiroNome = sessao.estado === 'produtor' || sessao.estado === 'especialista' ? sessao.nome?.split(' ')[0] : null
+  const equipe = sessao.estado === 'especialista' || sessao.estado === 'administrador' ? sessao.estado : null
+  const primeiroNome = sessao.estado === 'produtor' ? sessao.nome?.split(' ')[0] : null
 
-  // Área do especialista é para desktop: conteúdo mais largo
+  // Áreas da equipe (especialista e administração) são para desktop: conteúdo mais largo
   const areaEspecialista = pathname.startsWith('/especialista')
-  const loginEspecialista = pathname === '/especialista/login'
-  const painel = areaEspecialista && !loginEspecialista
+  const areaAdmin = pathname.startsWith('/admin')
+  const telaDeLogin = pathname === '/especialista/login' || pathname === '/admin/login'
+  const painel = (areaEspecialista || areaAdmin) && !telaDeLogin
   const areaProdutor = pathname.startsWith('/produtor') && pathname !== '/produtor/entrar'
   const inicio = pathname === '/'
-  const largura = areaEspecialista ? 'max-w-7xl' : 'max-w-5xl'
+  const largura = areaEspecialista || areaAdmin ? 'max-w-7xl' : 'max-w-5xl'
 
   // Barra inferior do celular: só para conta de produtor, nas telas dele e na inicial
   const mostrarBarra = produtor && (inicio || areaProdutor)
 
   async function sairDaConta() {
-    const eraEspecialista = especialista || areaEspecialista
+    const loginDaArea = areaAdmin ? '/admin/login' : areaEspecialista ? '/especialista/login' : '/produtor/entrar'
     await sair()
     // Na landing, continua na landing; nas áreas, vai para o login correspondente
-    navegar(inicio ? '/' : eraEspecialista ? '/especialista/login' : '/produtor/entrar')
+    navegar(inicio ? '/' : loginDaArea)
   }
 
   const botaoSair = (
@@ -58,10 +59,10 @@ export default function Layout() {
         {botaoSair}
       </>
     )
-  } else if (inicio && especialista) {
+  } else if (inicio && equipe) {
     acoes = (
       <>
-        <Link to="/especialista" className="font-semibold underline">
+        <Link to={PAINEL_DO_PAPEL[equipe]} className="font-semibold underline">
           Painel
         </Link>
         {botaoSair}
@@ -76,7 +77,7 @@ export default function Layout() {
         Entrar
       </Link>
     )
-  } else if (areaProdutor && (produtor || especialista)) {
+  } else if (areaProdutor && (produtor || equipe)) {
     acoes = (
       <>
         {produtor && <span className="max-w-28 truncate">Olá, {primeiroNome ?? 'produtor'}</span>}
@@ -90,8 +91,9 @@ export default function Layout() {
       <header className="bg-folha-700 text-white">
         <div className={`mx-auto flex ${largura} items-center justify-between gap-2 px-4 py-3`}>
           {/* No painel, o logo leva à fila; fora dele (inclusive no login), ao início */}
-          <Link to={painel ? '/especialista' : '/'} className="whitespace-nowrap text-lg font-bold">
+          <Link to={!painel ? '/' : areaAdmin ? '/admin' : '/especialista'} className="whitespace-nowrap text-lg font-bold">
             🌱 Radar de Pragas{areaEspecialista && <span className="font-normal"> · Especialista</span>}
+            {areaAdmin && <span className="font-normal"> · Administração</span>}
           </Link>
           {acoes && <div className="flex items-center gap-3 text-sm">{acoes}</div>}
         </div>

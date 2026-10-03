@@ -16,3 +16,7 @@ verify_jwt = false
 [functions.avisar-produtor]
 # Exige JWT; a função ainda confere se o usuário é especialista
 verify_jwt = true
+
+[functions.admin-especialistas]
+# Exige JWT; a função ainda confere se o usuário é administrador
+verify_jwt = true

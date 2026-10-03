@@ -1,6 +1,6 @@
 import LoginEquipe from '../../components/LoginEquipe'
 
-// Login do especialista (e-mail e senha)
+// Login da administração (e-mail e senha)
 export default function Login() {
-  return <LoginEquipe papel="especialista" />
+  return <LoginEquipe papel="administrador" />
 }

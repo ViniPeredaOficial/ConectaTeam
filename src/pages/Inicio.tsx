@@ -7,7 +7,7 @@ import Numeros from '../components/landing/Numeros'
 import RiscoRegiao from '../components/landing/RiscoRegiao'
 import Telegram from '../components/landing/Telegram'
 import { DATA_EXTRACAO_AGROFIT } from '../lib/fonte'
-import { useSessao } from '../lib/sessao'
+import { PAINEL_DO_PAPEL, useSessao } from '../lib/sessao'
 import { useTitulo } from '../lib/titulo'
 
 // O Leaflet só é baixado quando o mapa aparece (deixa o resto do app leve)
@@ -25,7 +25,7 @@ export default function Inicio() {
   useTitulo()
   const sessao = useSessao()
   const produtor = sessao.estado === 'produtor'
-  const especialista = sessao.estado === 'especialista'
+  const equipe = sessao.estado === 'especialista' || sessao.estado === 'administrador' ? sessao.estado : null
 
   return (
     <div className="flex flex-col gap-10 pt-2">
@@ -42,13 +42,13 @@ export default function Inicio() {
           produtores da região recebem o alerta.
         </p>
         <div className="mt-6 flex max-w-md flex-col gap-3 sm:flex-row">
-          {especialista ? (
-            // Conta de especialista não usa a área do produtor
+          {equipe ? (
+            // Conta da equipe não usa a área do produtor
             <Link
-              to="/especialista"
+              to={PAINEL_DO_PAPEL[equipe]}
               className="flex min-h-12 flex-1 items-center justify-center rounded-xl bg-white px-5 text-lg font-semibold text-folha-800"
             >
-              Ir para o painel do especialista
+              {equipe === 'administrador' ? 'Ir para o painel de administração' : 'Ir para o painel do especialista'}
             </Link>
           ) : produtor ? (
             <>
@@ -82,7 +82,7 @@ export default function Inicio() {
             </>
           )}
         </div>
-        {!produtor && !especialista && (
+        {!produtor && !equipe && (
           <p className="mt-4 text-sm text-folha-100">
             É agrônomo ou técnico?{' '}
             <Link to="/especialista/login" className="font-semibold underline">
