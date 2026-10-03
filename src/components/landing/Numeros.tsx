@@ -1,77 +1,69 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 
-// Totais públicos (função estatisticas_publicas: só números agregados, nada pessoal)
 type Estatisticas = {
-  chamados: number
-  chamados_simulados: number
-  analisados: number
-  analisados_simulados: number
   alertas: number
   alertas_simulados: number
   municipios_com_alerta: number
-  horas_ate_resposta: number | null
-  acerto_ia: number | null
-  respostas_com_ia: number
 }
 
 const numero = (n: number) => n.toLocaleString('pt-BR')
 
-function horas(h: number | null): string {
-  if (h === null) return '—'
-  if (h < 1) return `${Math.max(1, Math.round(h * 60))} min`
-  return `${h.toLocaleString('pt-BR', { maximumFractionDigits: 1 })} h`
-}
-
-// Números ao vivo do sistema, com aviso quando incluem dados de demonstração (regra 7)
+// Faixa compacta de dados agregados do sistema.
 export default function Numeros() {
   const [dados, setDados] = useState<Estatisticas | null>(null)
+  const [culturas, setCulturas] = useState<number | null>(null)
   const [erro, setErro] = useState(false)
 
   useEffect(() => {
-    supabase
-      .rpc('estatisticas_publicas')
-      .then(({ data, error }) => (error ? setErro(true) : setDados(data as Estatisticas)))
+    let ativo = true
+    Promise.all([supabase.rpc('estatisticas_publicas'), supabase.rpc('culturas_monitoradas')])
+      .then(([estatisticas, monitoradas]) => {
+        if (!ativo) return
+        if (estatisticas.error || monitoradas.error) {
+          console.error('Falha ao carregar os números públicos', estatisticas.error ?? monitoradas.error)
+          setErro(true)
+          return
+        }
+        if (!estatisticas.data || !monitoradas.data) {
+          throw new Error('Resposta incompleta ao carregar números públicos')
+        }
+        setDados(estatisticas.data as Estatisticas)
+        setCulturas((monitoradas.data as { cultura: string }[]).length)
+      })
+      .catch((e) => {
+        console.error('Falha ao carregar os números públicos', e)
+        if (ativo) setErro(true)
+      })
+    return () => {
+      ativo = false
+    }
   }, [])
 
-  if (erro) return null
-
-  const cartoes = [
-    { rotulo: 'chamados recebidos', valor: dados && numero(dados.chamados), simulados: dados?.chamados_simulados },
-    { rotulo: 'analisados por especialista', valor: dados && numero(dados.analisados), simulados: dados?.analisados_simulados },
-    { rotulo: 'alertas regionais', valor: dados && numero(dados.alertas), simulados: dados?.alertas_simulados },
-    { rotulo: 'municípios com alerta', valor: dados && numero(dados.municipios_com_alerta) },
-    { rotulo: 'tempo médio até a resposta', valor: dados && horas(dados.horas_ate_resposta) },
-    {
-      rotulo: 'acerto da IA na 1ª sugestão',
-      valor: dados && (dados.acerto_ia === null ? '—' : `${Math.round(dados.acerto_ia * 100)}%`),
-    },
+  const metricas = [
+    { valor: dados ? numero(dados.alertas) : '—', rotulo: 'alertas regionais' },
+    { valor: dados ? numero(dados.municipios_com_alerta) : '—', rotulo: 'municípios alcançados' },
+    { valor: culturas === null ? '—' : numero(culturas), rotulo: 'culturas monitoradas' },
   ]
-  const temSimulado = Boolean(dados && dados.chamados_simulados > 0)
 
   return (
-    <section aria-labelledby="titulo-numeros">
-      <h2 id="titulo-numeros" className="mb-3 text-xl font-bold text-folha-800">
-        O Radar em números
-      </h2>
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-        {cartoes.map((c) => (
-          <div key={c.rotulo} className="rounded-2xl bg-white p-4 shadow-sm">
-            <p className="text-3xl font-bold text-folha-700">{c.valor ?? '…'}</p>
-            <p className="text-sm text-gray-700">{c.rotulo}</p>
-            {Boolean(c.simulados) && (
-              <span className="mt-1 inline-block rounded-full bg-purple-100 px-2 text-xs font-semibold text-purple-800">
-                {c.simulados} simulados
-              </span>
-            )}
+    <section aria-label="Números do Radar">
+      <h2 className="sr-only">O Radar em números</h2>
+      <div className="grid sm:grid-cols-3">
+        {metricas.map((metrica) => (
+          <div key={metrica.rotulo} className="px-4 py-4 text-center first:pt-0 last:pb-0 sm:py-2">
+            <p className="text-3xl font-bold tracking-tight text-folha-900">{metrica.valor}</p>
+            <p className="mt-1 text-xs font-medium uppercase tracking-wide text-gray-600 sm:text-sm">{metrica.rotulo}</p>
           </div>
         ))}
       </div>
-      {temSimulado && (
-        <p className="mt-2 text-sm text-gray-600">
-          Inclui dados <strong>simulados</strong> de demonstração da região de Araraquara, marcados em todo o sistema.
+      {dados?.alertas_simulados ? (
+        <p className="mt-2 text-xs text-gray-600">
+          Os números de alertas incluem {numero(dados.alertas_simulados)} registro(s) de demonstração, identificados no mapa.
         </p>
-      )}
+      ) : erro ? (
+        <p className="mt-2 text-xs text-gray-600">Os números agregados não estão disponíveis agora.</p>
+      ) : null}
     </section>
   )
 }

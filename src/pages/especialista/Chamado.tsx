@@ -141,7 +141,7 @@ export default function Chamado() {
 
   if (erroCarregar) {
     return (
-      <div className="rounded-xl bg-red-50 p-4 text-red-800">
+      <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
         Não conseguimos abrir este chamado.{' '}
         <button className="font-semibold underline" onClick={carregar}>
           Tentar de novo
@@ -149,7 +149,7 @@ export default function Chamado() {
       </div>
     )
   }
-  if (!dados) return <p className="text-gray-600">Carregando...</p>
+  if (!dados) return <p role="status" className="rounded-2xl border border-folha-200 bg-white p-5 text-sm text-gray-600">Carregando chamado...</p>
 
   const { chamado, fotoUrl, validacao, alerta } = dados
   const alertaSaiu = Boolean(alerta && (alerta.canal_enviado || alerta.destinatarios > 0))
@@ -256,7 +256,7 @@ export default function Chamado() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* ESQUERDA: o que o produtor enviou */}
-        <section className="flex flex-col gap-3 rounded-2xl bg-white p-5 shadow-sm">
+        <section className="flex flex-col gap-3 rounded-2xl border border-folha-200 bg-white p-4 sm:p-5">
           {fotoUrl ? (
             <FotoAmpliavel
               src={fotoUrl}
@@ -267,7 +267,7 @@ export default function Chamado() {
             <div className="flex h-64 items-center justify-center rounded-xl bg-gray-100 text-gray-500">Sem foto</div>
           )}
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-2xl font-bold text-folha-800">
+            <h1 className="text-2xl font-bold text-folha-900">
               {iconeDaCultura(chamado.cultura)} {chamado.cultura}
             </h1>
             {chamado.simulado && (
@@ -278,7 +278,7 @@ export default function Chamado() {
             📍 {chamado.municipio_nome ?? 'Município não informado'}
             {chamado.municipio_uf && `/${chamado.municipio_uf}`} · {dataHora(chamado.criado_em)}
           </p>
-          <div className="rounded-xl bg-folha-50 p-3">
+          <div className="rounded-xl border border-folha-100 bg-folha-50 p-3">
             <p className="text-sm font-semibold text-gray-600">O que o produtor viu</p>
             <p className="text-gray-900">{chamado.descricao || '(sem descrição)'}</p>
           </div>
@@ -288,8 +288,8 @@ export default function Chamado() {
 
         {/* DIREITA: IA + resposta */}
         <section className="flex flex-col gap-4">
-          <div className="rounded-2xl bg-white p-5 shadow-sm">
-            <h2 className="mb-3 text-lg font-bold text-folha-800">Sugestões da IA</h2>
+          <div className="rounded-2xl border border-folha-200 bg-white p-4 sm:p-5">
+            <h2 className="mb-3 text-lg font-bold text-folha-900">Sugestões da IA</h2>
             <SugestoesIA
               chamado={chamado}
               candidatas={candidatas}
@@ -304,20 +304,20 @@ export default function Chamado() {
               <RespostaDada validacao={validacao} />
               {chamado.simulado && alerta ? (
                 // Demonstração: nunca dispara alerta falso no canal real
-                <p className="rounded-xl bg-purple-50 p-3 text-purple-900">
+                <p className="rounded-xl border border-purple-200 bg-purple-50 p-3 text-sm text-purple-900">
                   🧪 Alerta simulado ({dataHora(alerta.enviado_em)}): não enviado ao Telegram.
                 </p>
               ) : alertaSaiu && alerta ? (
-                <p className="rounded-xl bg-folha-100 p-3 text-folha-800">
+                <p className="rounded-xl border border-folha-200 bg-folha-50 p-3 text-sm text-folha-900">
                   📣 {dataHora(alerta.enviado_em)}: {textoDoEnvio(alerta.destinatarios, alerta.canal_enviado)}
                 </p>
               ) : (
-                <div className="flex items-center justify-between gap-3 rounded-xl bg-amber-50 p-3 text-amber-900">
+                <div className="flex items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
                   <span>O alerta desta resposta ainda não foi enviado.</span>
                   <button
                     onClick={reenviarAlerta}
                     disabled={enviando}
-                    className="min-h-10 shrink-0 rounded-lg bg-folha-600 px-4 font-semibold text-white disabled:opacity-50"
+                    className="min-h-10 shrink-0 rounded-lg bg-folha-700 px-4 font-semibold text-white transition-colors hover:bg-folha-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-folha-500 disabled:opacity-50"
                   >
                     {enviando ? 'Enviando...' : 'Enviar alerta'}
                   </button>
@@ -327,8 +327,8 @@ export default function Chamado() {
           ) : chamado.status === 'descartado' ? (
             <div className="rounded-2xl bg-gray-100 p-5 text-gray-700">Este chamado foi descartado.</div>
           ) : (
-            <div className="flex flex-col gap-4 rounded-2xl bg-white p-5 shadow-sm">
-              <h2 className="text-lg font-bold text-folha-800">Sua resposta</h2>
+            <div className="flex flex-col gap-4 rounded-2xl border border-folha-200 bg-white p-4 sm:p-5">
+              <h2 className="text-lg font-bold text-folha-900">Sua resposta</h2>
 
               <div>
                 <p className="mb-1 text-sm font-semibold text-gray-700">Praga confirmada</p>
@@ -351,7 +351,7 @@ export default function Chamado() {
                   rows={3}
                   value={comoIdentificar}
                   onChange={(e) => setComoIdentificar(e.target.value)}
-                  className="rounded-lg border-2 border-gray-200 p-2 focus:border-folha-500 focus:outline-none"
+                  className="rounded-xl border border-folha-300 bg-white p-3 text-base focus:border-folha-600 focus:outline-2 focus:outline-folha-500"
                 />
               </label>
 
@@ -362,7 +362,7 @@ export default function Chamado() {
                   value={manejo}
                   onChange={(e) => setManejo(e.target.value)}
                   placeholder="Ex.: monitorar 2 vezes por semana, retirar folhas atacadas, usar produto biológico registrado..."
-                  className="rounded-lg border-2 border-gray-200 p-2 focus:border-folha-500 focus:outline-none"
+                  className="rounded-xl border border-folha-300 bg-white p-3 text-base focus:border-folha-600 focus:outline-2 focus:outline-folha-500"
                 />
               </label>
 
@@ -403,7 +403,7 @@ export default function Chamado() {
               </fieldset>
 
               {/* Aviso fixo sobre dose (regra 4) */}
-              <p className="rounded-lg border-l-4 border-amber-500 bg-amber-50 p-3 text-sm text-amber-900">
+              <p className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
                 O alerta não pode conter dose. Indique os produtos registrados e oriente procurar a assistência técnica.
               </p>
               {doseEncontrada && (
@@ -413,7 +413,7 @@ export default function Chamado() {
               )}
 
               {erroEnvio && (
-                <p role="alert" className="rounded-lg bg-red-50 p-2 text-red-800">
+                <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">
                   {erroEnvio}
                 </p>
               )}
@@ -422,14 +422,14 @@ export default function Chamado() {
                 <button
                   onClick={confirmar}
                   disabled={enviando || !praga || Boolean(doseEncontrada)}
-                  className="min-h-12 flex-1 rounded-xl bg-folha-600 font-semibold text-white hover:bg-folha-700 disabled:opacity-50"
+                  className="min-h-12 flex-1 rounded-xl bg-folha-700 font-semibold text-white transition-colors hover:bg-folha-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-folha-500 disabled:opacity-50"
                 >
                   {enviando ? 'Enviando...' : 'Confirmar e enviar alerta'}
                 </button>
                 <button
                   onClick={descartar}
                   disabled={enviando}
-                  className="min-h-12 rounded-xl border-2 border-gray-300 px-4 font-semibold text-gray-700 hover:bg-gray-100"
+                  className="min-h-12 rounded-xl border border-folha-300 px-4 font-semibold text-gray-700 transition-colors hover:bg-folha-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-folha-600"
                 >
                   Descartar chamado
                 </button>
@@ -440,8 +440,8 @@ export default function Chamado() {
           {resultado && (
             <p
               role="status"
-              className={`rounded-xl p-3 font-semibold ${
-                resultado.tipo === 'ok' ? 'bg-folha-100 text-folha-800' : 'bg-amber-50 text-amber-900'
+              className={`rounded-xl border p-3 text-sm font-semibold ${
+                resultado.tipo === 'ok' ? 'border-folha-200 bg-folha-50 text-folha-900' : 'border-amber-200 bg-amber-50 text-amber-900'
               }`}
             >
               {resultado.texto}
@@ -480,14 +480,14 @@ function ReprocessarTriagem({ chamado, aposMinutos }: { chamado: FilaEspecialist
   }
 
   if (estado === 'enviado') {
-    return <p className="text-sm text-folha-800">IA acionada de novo. A sugestão aparece aqui em até 2 minutos.</p>
+    return <p role="status" className="text-sm text-folha-800">IA acionada de novo. A sugestão aparece aqui em até 2 minutos.</p>
   }
   return (
     <div className="flex flex-wrap items-center gap-2">
       <button
         onClick={rodar}
         disabled={estado === 'enviando'}
-        className="rounded-lg border-2 border-folha-600 px-3 py-1 text-sm font-semibold text-folha-700 hover:bg-folha-50 disabled:opacity-50"
+        className="min-h-10 rounded-lg border border-folha-400 px-3 py-1 text-sm font-semibold text-folha-800 transition-colors hover:bg-folha-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-folha-600 disabled:opacity-50"
       >
         {estado === 'enviando' ? 'Acionando...' : '🔄 Rodar triagem de novo'}
       </button>
@@ -541,7 +541,7 @@ function SugestoesIA({
       {candidatas.map((c, i) => (
         <div
           key={c.praga_nome_cientifico}
-          className={`rounded-xl border-2 p-3 ${escolhida === c.praga_nome_cientifico ? 'border-folha-600' : 'border-gray-200'}`}
+          className={`rounded-xl border p-3 ${escolhida === c.praga_nome_cientifico ? 'border-folha-600 bg-folha-50' : 'border-folha-200 bg-white'}`}
         >
           <div className="flex items-start justify-between gap-3">
             <div>
@@ -553,7 +553,7 @@ function SugestoesIA({
             {podeEscolher && (
               <button
                 onClick={() => onEscolher(c)}
-                className="shrink-0 rounded-lg bg-folha-600 px-3 py-1 text-sm font-semibold text-white hover:bg-folha-700"
+                className="min-h-10 shrink-0 rounded-lg bg-folha-700 px-3 py-1 text-sm font-semibold text-white transition-colors hover:bg-folha-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-folha-500"
               >
                 {escolhida === c.praga_nome_cientifico ? 'Escolhida' : 'Usar esta'}
               </button>
@@ -599,8 +599,8 @@ function SugestoesIA({
 // Resposta já enviada (só leitura)
 function RespostaDada({ validacao }: { validacao: Validacao }) {
   return (
-    <div className="rounded-2xl bg-white p-5 shadow-sm">
-      <h2 className="text-lg font-bold text-folha-800">Resposta enviada</h2>
+    <div className="rounded-2xl border border-folha-200 bg-white p-4 sm:p-5">
+      <h2 className="text-lg font-bold text-folha-900">Resposta enviada</h2>
       <p className="mt-2">
         <strong>{validacao.praga_nome_comum ?? validacao.praga_nome_cientifico}</strong>{' '}
         <em className="text-gray-600">{validacao.praga_nome_cientifico}</em>

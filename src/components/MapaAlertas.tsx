@@ -1,42 +1,31 @@
 import { useEffect, useMemo, useState } from 'react'
 import { CircleMarker, MapContainer, Popup, TileLayer, useMap, useMapEvents } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
+import { buscarAlertasPublicos } from '../lib/alertasPublicos'
+import type { AlertaPublico } from '../lib/alertasPublicos'
 import { iconeDaCultura } from '../lib/culturas'
 import { agruparPorPraga, nomePraga, posicaoNoAnel, raioDoCirculo } from '../lib/mapa'
-import type { AlertaDoMapa, GrupoPraga } from '../lib/mapa'
-import { supabase } from '../lib/supabase'
+import type { GrupoPraga } from '../lib/mapa'
+import { tempoRelativo } from '../lib/tempoRelativo'
 
-// Alerta como o mapa precisa: só dados públicos (alertas + centroide do município)
-type AlertaMapa = AlertaDoMapa & { canal_enviado: boolean; destinatarios: number }
 type Modo = 'separar' | 'sobrepor'
 
 const CENTRO_REGIAO: [number, number] = [-21.7845, -48.178] // Araraquara
 const PERIODOS = [7, 15, 30]
+const ATUALIZAR_MS = 45_000
 // Cores bem distintas entre si para as pragas
-const PALETA = ['#dc2626', '#2563eb', '#d97706', '#7c3aed', '#0891b2', '#db2777', '#65a30d', '#475569']
+const PALETA = ['#cc060a', '#2563eb', '#d97706', '#7c3aed', '#0891b2', '#db2777', '#65a30d', '#475569']
 
-async function buscarAlertas(): Promise<AlertaMapa[]> {
-  const desde = new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString()
-  const { data, error } = await supabase
-    .from('alertas')
-    .select(
-      'id, enviado_em, cultura, praga_nome_comum, praga_nome_cientifico, simulado, canal_enviado, destinatarios, ' +
-        'municipio_cod, municipios(nome, lat, lon)',
-    )
-    .gte('enviado_em', desde)
-    .order('enviado_em', { ascending: false })
-    .returns<AlertaMapa[]>()
-  if (error) throw error
-  // Só alertas que saíram de verdade, ou os simulados da demonstração
-  return data.filter((a) => a.municipios && (a.simulado || a.canal_enviado || a.destinatarios > 0))
-}
-
-type Props = { altura?: string; rolagem?: boolean }
+type Props = { altura?: string; rolagem?: boolean; centroInicial?: [number, number] }
 
 // Mapa de alertas dos últimos 30 dias: um círculo por praga em cada município, no centroide
 // (nunca no ponto do produtor), com filtro de pragas e modo sobrepor/separar
-export default function MapaAlertas({ altura = 'h-80', rolagem = false }: Props) {
-  const [alertas, setAlertas] = useState<AlertaMapa[] | null>(null)
+export default function MapaAlertas({
+  altura = 'h-80',
+  rolagem = false,
+  centroInicial = CENTRO_REGIAO,
+}: Props) {
+  const [alertas, setAlertas] = useState<AlertaPublico[] | null>(null)
   const [erro, setErro] = useState(false)
   const [cultura, setCultura] = useState('todas')
   const [dias, setDias] = useState(30)
@@ -46,15 +35,25 @@ export default function MapaAlertas({ altura = 'h-80', rolagem = false }: Props)
   const [carregadoEm, setCarregadoEm] = useState(0)
 
   useEffect(() => {
-    buscarAlertas()
-      .then((lista) => {
+    let ativo = true
+    const carregar = async () => {
+      try {
+        const lista = await buscarAlertasPublicos()
+        if (!ativo) return
         setAlertas(lista)
         setCarregadoEm(Date.now())
-      })
-      .catch((e) => {
+        setErro(false)
+      } catch (e) {
         console.error('Falha ao carregar alertas do mapa', e)
-        setErro(true)
-      })
+        if (ativo) setErro(true)
+      }
+    }
+    void carregar()
+    const timer = window.setInterval(carregar, ATUALIZAR_MS)
+    return () => {
+      ativo = false
+      window.clearInterval(timer)
+    }
   }, [])
 
   const culturas = useMemo(
@@ -98,11 +97,11 @@ export default function MapaAlertas({ altura = 'h-80', rolagem = false }: Props)
   return (
     <div className="flex flex-col gap-2">
       {/* Filtros: cultura, período e modo de exibição */}
-      <div className="flex flex-wrap items-center gap-2 text-sm">
+      <div className="flex flex-col items-stretch gap-2 text-sm sm:flex-row sm:flex-wrap sm:items-center">
         <select
           value={cultura}
           onChange={(e) => setCultura(e.target.value)}
-          className="min-h-10 rounded-lg border-2 border-gray-200 bg-white px-2"
+          className="min-h-11 w-full rounded-xl border border-folha-300 bg-white px-3 text-base text-gray-800 focus:border-folha-600 focus:outline-2 focus:outline-folha-500 sm:w-auto"
           aria-label="Filtrar por cultura"
         >
           <option value="todas">Todas as culturas</option>
@@ -172,19 +171,63 @@ export default function MapaAlertas({ altura = 'h-80', rolagem = false }: Props)
       )}
 
       {/* Mapa */}
-      <div className={`relative ${altura} overflow-hidden rounded-xl`}>
-        <MapContainer center={CENTRO_REGIAO} zoom={10} scrollWheelZoom={rolagem} className="h-full w-full">
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          <Circulos grupos={grupos} cores={cores} modo={modo} />
-        </MapContainer>
-        {alertas && grupos.length === 0 && (
-          <p className="pointer-events-none absolute inset-x-0 top-2 z-[500] mx-auto w-fit rounded-lg bg-white/90 px-3 py-1 text-sm shadow">
-            {noPeriodo.length ? 'Nenhuma praga selecionada.' : 'Nenhum alerta neste período.'}
-          </p>
-        )}
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_17rem]">
+        <div className={`relative ${altura} min-h-[320px] overflow-hidden rounded-xl`}>
+          <MapContainer center={centroInicial} zoom={10} scrollWheelZoom={rolagem} className="h-full w-full">
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            <AtualizarCentro centro={centroInicial} />
+            <Circulos grupos={grupos} cores={cores} modo={modo} />
+          </MapContainer>
+          {alertas && grupos.length === 0 && (
+            <p className="pointer-events-none absolute inset-x-0 top-2 z-[500] mx-auto w-fit rounded-lg bg-white/90 px-3 py-1 text-sm shadow">
+              {noPeriodo.length ? 'Nenhuma praga selecionada.' : 'Nenhum alerta neste período.'}
+            </p>
+          )}
+          {!alertas && (
+            <p className="pointer-events-none absolute inset-x-0 top-2 z-[500] mx-auto w-fit rounded-lg bg-white/90 px-3 py-1 text-sm shadow">
+              Carregando alertas…
+            </p>
+          )}
+        </div>
+
+        <aside aria-labelledby="titulo-alertas-recentes" className="rounded-xl bg-folha-50 p-4">
+          <h3 id="titulo-alertas-recentes" className="font-bold text-folha-900">
+            Últimos alertas publicados
+          </h3>
+          {alertas?.length ? (
+            <ul className="mt-3 divide-y divide-folha-200">
+              {alertas.slice(0, 5).map((alerta) => (
+                <li key={alerta.id} className="py-3 first:pt-0 last:pb-0">
+                  <p className="font-semibold text-gray-900">{nomePraga(alerta)}</p>
+                  <p className="text-sm text-gray-700">
+                    {alerta.cultura ?? 'Cultura não informada'} · {alerta.municipios?.nome}
+                  </p>
+                  <p className="mt-1 text-xs text-gray-500">
+                    {tempoRelativo(alerta.enviado_em)}
+                    {alerta.simulado && (
+                      <span className="ml-2 rounded-full bg-purple-100 px-2 py-0.5 font-semibold text-purple-800">
+                        demonstração
+                      </span>
+                    )}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-2 text-sm text-gray-600">
+              {alertas ? 'Ainda não há alertas publicados neste período.' : 'Consultando a lista…'}
+            </p>
+          )}
+          {carregadoEm > 0 && (
+            <p className="mt-4 border-t border-folha-200 pt-3 text-xs text-gray-500">
+              Atualizado às {new Date(carregadoEm).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} ·
+              consulta a cada 45 s
+            </p>
+          )}
+        </aside>
       </div>
 
       {erro && <p className="text-sm text-red-700">Não conseguimos carregar os alertas.</p>}
@@ -195,12 +238,16 @@ export default function MapaAlertas({ altura = 'h-80', rolagem = false }: Props)
           · {municipios} {municipios === 1 ? 'município' : 'municípios'}
         </p>
       )}
-      <p className="text-xs text-gray-500">
-        Um círculo por praga em cada município, no centro do município (nunca na localização do produtor). Tamanho =
-        número de alertas. Em "Separar", os círculos se espalham em volta do centro só para ficarem visíveis.
-      </p>
     </div>
   )
+}
+
+function AtualizarCentro({ centro }: { centro: [number, number] }) {
+  const mapa = useMap()
+  useEffect(() => {
+    mapa.setView(centro, mapa.getZoom())
+  }, [centro, mapa])
+  return null
 }
 
 // Grupo de botões em que só um fica escolhido (período, modo)
@@ -216,14 +263,16 @@ function BotoesEscolha<T extends string | number>({
   onEscolher: (valor: T) => void
 }) {
   return (
-    <div className="flex overflow-hidden rounded-lg border-2 border-gray-200" role="group" aria-label={rotulo}>
+    <div className="flex w-full overflow-hidden rounded-xl border border-folha-300 sm:w-auto" role="group" aria-label={rotulo}>
       {opcoes.map((o) => (
         <button
           key={String(o.valor)}
           type="button"
           onClick={() => onEscolher(o.valor)}
           aria-pressed={atual === o.valor}
-          className={`min-h-10 px-3 ${atual === o.valor ? 'bg-folha-600 text-white' : 'bg-white text-gray-700'}`}
+          className={`min-h-11 min-w-0 flex-1 whitespace-nowrap px-2 text-sm font-semibold transition-colors focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-folha-600 sm:flex-none sm:px-3 ${
+            atual === o.valor ? 'bg-folha-700 text-white' : 'bg-white text-gray-700 hover:bg-folha-50'
+          }`}
         >
           {o.texto}
         </button>
