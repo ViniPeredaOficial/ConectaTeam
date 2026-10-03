@@ -24,9 +24,9 @@ export default function Culturas() {
 
   return (
     <section aria-labelledby="titulo-culturas">
-      <h2 id="titulo-culturas" className="mb-1 text-xl font-bold text-folha-800">
-        O que monitoramos
-      </h2>
+      <h3 id="titulo-culturas" className="mb-1 text-lg font-bold text-folha-800">
+        Culturas monitoradas
+      </h3>
       <p className="mb-3 text-sm text-gray-700">
         Pragas e produtos registrados para cada cultura na base oficial Agrofit do MAPA.
       </p>

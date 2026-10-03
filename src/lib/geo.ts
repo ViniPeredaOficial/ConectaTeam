@@ -1,7 +1,22 @@
 import type { Municipio } from '../types/database'
+import limiteSaoPaulo from '../assets/limite-sp.json' with { type: 'json' }
+
+const POLIGONO_SAO_PAULO = limiteSaoPaulo as [number, number][]
 
 // Acima disso, provavelmente a pessoa está fora de SP ou o GPS falhou: pedimos para escolher na lista
 export const DISTANCIA_MAXIMA_KM = 50
+
+// O limite vem da mesma base de divisas estaduais usada no mapa do globo.
+export function coordenadaEmSaoPaulo(lat: number, lon: number): boolean {
+  let dentro = false
+  for (let i = 0, j = POLIGONO_SAO_PAULO.length - 1; i < POLIGONO_SAO_PAULO.length; j = i++) {
+    const [latI, lonI] = POLIGONO_SAO_PAULO[i]
+    const [latJ, lonJ] = POLIGONO_SAO_PAULO[j]
+    const cruza = latI > lat !== latJ > lat && lon < ((lonJ - lonI) * (lat - latI)) / (latJ - latI) + lonI
+    if (cruza) dentro = !dentro
+  }
+  return dentro
+}
 
 // Distância em km entre dois pontos (fórmula de haversine)
 export function distanciaKm(lat1: number, lon1: number, lat2: number, lon2: number): number {

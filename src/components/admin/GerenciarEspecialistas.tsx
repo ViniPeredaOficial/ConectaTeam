@@ -6,7 +6,8 @@ import { supabase } from '../../lib/supabase'
 type Especialista = { id: string; nome: string | null; email: string; criado_em: string; bloqueado: boolean; analises: number }
 
 const SENHA_MINIMA = 8
-const campo = 'w-full rounded-lg border-2 border-gray-200 px-3 py-2 focus:border-folha-500 focus:outline-none'
+const campo =
+  'min-h-11 w-full rounded-xl border border-folha-300 bg-white px-3 text-base text-gray-900 focus:border-folha-600 focus:outline-2 focus:outline-offset-1 focus:outline-folha-500'
 
 // Senha inicial aleatória, sem caracteres que se confundem (0/O, 1/l)
 function gerarSenha(): string {
@@ -77,71 +78,74 @@ export default function GerenciarEspecialistas() {
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[1fr_24rem]">
+    <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_24rem]">
       {/* Lista */}
-      <section className="rounded-2xl bg-white p-5 shadow-sm">
-        <h2 className="mb-3 text-lg font-bold text-folha-800">Especialistas cadastrados</h2>
-        {erroLista && <p className="text-red-700">Não conseguimos carregar a lista.</p>}
-        {lista && lista.length === 0 && <p className="text-gray-600">Nenhum especialista ainda.</p>}
+      <section className="min-w-0 rounded-2xl border border-folha-200 bg-white p-4 sm:p-5">
+        <h2 className="mb-3 text-lg font-bold text-folha-900">Especialistas cadastrados</h2>
+        {erroLista && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">Não conseguimos carregar a lista.</p>}
+        {!lista && !erroLista && <p role="status" className="text-sm text-gray-600">Carregando especialistas...</p>}
+        {lista && lista.length === 0 && <p className="rounded-xl bg-folha-50 p-3 text-sm text-gray-600">Nenhum especialista ainda.</p>}
         {lista && lista.length > 0 && (
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="text-gray-600">
-                <th className="py-2">Nome</th>
-                <th className="py-2">E-mail</th>
-                <th className="py-2">Desde</th>
-                <th className="py-2">Análises</th>
-                <th className="py-2">Situação</th>
-                <th className="py-2" />
-              </tr>
-            </thead>
-            <tbody>
-              {lista.map((esp) => (
-                <tr key={esp.id} className="border-t border-gray-100">
-                  <td className="py-2 font-semibold text-gray-900">{esp.nome ?? '(sem nome)'}</td>
-                  <td className="py-2 text-gray-700">{esp.email}</td>
-                  <td className="py-2 text-gray-700">{new Date(esp.criado_em).toLocaleDateString('pt-BR')}</td>
-                  <td className="py-2 text-gray-700">{esp.analises}</td>
-                  <td className="py-2">
-                    <span
-                      className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
-                        esp.bloqueado ? 'bg-red-100 text-red-800' : 'bg-folha-100 text-folha-800'
-                      }`}
-                    >
-                      {esp.bloqueado ? 'Bloqueado' : 'Ativo'}
-                    </span>
-                  </td>
-                  <td className="py-2 text-right">
-                    <button onClick={() => alterarAcesso(esp)} className="text-sm font-semibold text-folha-700 underline">
-                      {esp.bloqueado ? 'Reativar' : 'Bloquear'}
-                    </button>
-                  </td>
+          <div className="-mx-1 overflow-x-auto px-1">
+            <table className="w-full min-w-[680px] text-left text-sm">
+              <thead>
+                <tr className="text-gray-600">
+                  <th className="py-2">Nome</th>
+                  <th className="py-2">E-mail</th>
+                  <th className="py-2">Desde</th>
+                  <th className="py-2">Análises</th>
+                  <th className="py-2">Situação</th>
+                  <th className="py-2" />
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {lista.map((esp) => (
+                  <tr key={esp.id} className="border-t border-folha-100">
+                    <td className="py-2 font-semibold text-gray-900">{esp.nome ?? '(sem nome)'}</td>
+                    <td className="py-2 text-gray-700">{esp.email}</td>
+                    <td className="py-2 text-gray-700">{new Date(esp.criado_em).toLocaleDateString('pt-BR')}</td>
+                    <td className="py-2 text-gray-700">{esp.analises}</td>
+                    <td className="py-2">
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+                          esp.bloqueado ? 'bg-red-100 text-red-800' : 'bg-folha-100 text-folha-800'
+                        }`}
+                      >
+                        {esp.bloqueado ? 'Bloqueado' : 'Ativo'}
+                      </span>
+                    </td>
+                    <td className="py-2 text-right">
+                      <button onClick={() => alterarAcesso(esp)} className="text-sm font-semibold text-folha-700 underline underline-offset-2">
+                        {esp.bloqueado ? 'Reativar' : 'Bloquear'}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </section>
 
       {/* Cadastro */}
-      <form onSubmit={cadastrar} className="flex flex-col gap-3 self-start rounded-2xl bg-white p-5 shadow-sm">
-        <h2 className="text-lg font-bold text-folha-800">Cadastrar especialista</h2>
+      <form onSubmit={cadastrar} className="flex flex-col gap-3 self-start rounded-2xl border border-folha-200 bg-white p-4 sm:p-5">
+        <h2 className="text-lg font-bold text-folha-900">Cadastrar especialista</h2>
         <label className="flex flex-col gap-1 text-sm">
-          <span className="font-semibold text-gray-700">Nome</span>
+          <span className="font-semibold text-gray-800">Nome</span>
           <input required maxLength={80} value={nome} onChange={(e) => setNome(e.target.value)} className={campo} />
         </label>
         <label className="flex flex-col gap-1 text-sm">
-          <span className="font-semibold text-gray-700">E-mail</span>
+          <span className="font-semibold text-gray-800">E-mail</span>
           <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={campo} />
         </label>
         <label className="flex flex-col gap-1 text-sm">
-          <span className="font-semibold text-gray-700">Senha inicial</span>
+          <span className="font-semibold text-gray-800">Senha inicial</span>
           <div className="flex gap-2">
             <input required minLength={SENHA_MINIMA} value={senha} onChange={(e) => setSenha(e.target.value)} className={campo} />
             <button
               type="button"
               onClick={() => setSenha(gerarSenha())}
-              className="shrink-0 rounded-lg border-2 border-folha-600 px-3 font-semibold text-folha-700 hover:bg-folha-50"
+              className="shrink-0 rounded-xl border border-folha-400 px-3 font-semibold text-folha-800 transition-colors hover:bg-folha-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-folha-600"
             >
               Gerar
             </button>
@@ -151,7 +155,7 @@ export default function GerenciarEspecialistas() {
         {mensagem && (
           <p
             role="status"
-            className={`rounded-lg p-2 text-sm ${mensagem.tipo === 'ok' ? 'bg-folha-100 text-folha-900' : 'bg-red-50 text-red-800'}`}
+            className={`rounded-xl border p-3 text-sm ${mensagem.tipo === 'ok' ? 'border-folha-200 bg-folha-50 text-folha-900' : 'border-red-200 bg-red-50 text-red-800'}`}
           >
             {mensagem.texto}
           </p>
@@ -159,7 +163,7 @@ export default function GerenciarEspecialistas() {
         <button
           type="submit"
           disabled={enviando}
-          className="min-h-12 rounded-xl bg-folha-600 font-semibold text-white hover:bg-folha-700 disabled:opacity-50"
+          className="min-h-12 rounded-xl bg-folha-700 font-semibold text-white transition-colors hover:bg-folha-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-folha-500 disabled:opacity-50"
         >
           {enviando ? 'Cadastrando...' : 'Cadastrar especialista'}
         </button>

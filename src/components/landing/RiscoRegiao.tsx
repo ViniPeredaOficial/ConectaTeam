@@ -28,10 +28,11 @@ export default function RiscoRegiao() {
 
   return (
     <section aria-labelledby="titulo-risco">
-      <h2 id="titulo-risco" className="mb-1 text-xl font-bold text-folha-800">
+      <p className="text-xs font-bold uppercase tracking-[0.16em] text-folha-700">Condições para os próximos dias</p>
+      <h3 id="titulo-risco" className="mb-2 mt-1 text-2xl font-bold leading-tight tracking-tight text-folha-900 sm:text-3xl">
         Risco da semana na região
-      </h2>
-      <p className="mb-3 text-sm text-gray-700">
+      </h3>
+      <p className="mb-4 max-w-3xl text-base leading-7 text-gray-600">
         Como o tempo dos próximos 3 dias favorece doenças e pragas em cada município. Os de maior risco aparecem
         primeiro.
       </p>

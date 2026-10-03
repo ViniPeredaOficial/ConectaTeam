@@ -124,7 +124,7 @@ export default function Fila() {
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         {/* Abas: a escolhida fica na URL (?aba=mapa) */}
-        <div className="flex gap-1 rounded-xl bg-white p-1 shadow-sm" role="tablist">
+        <div className="flex gap-1 rounded-xl border border-folha-200 bg-white p-1" role="tablist" aria-label="Seções da fila">
           {(
             [
               ['fila', 'Fila de chamados'],
@@ -136,8 +136,8 @@ export default function Fila() {
               role="tab"
               aria-selected={aba === valor}
               onClick={() => setParametros(valor === 'mapa' ? { aba: 'mapa' } : {})}
-              className={`rounded-lg px-4 py-2 text-lg font-bold ${
-                aba === valor ? 'bg-folha-600 text-white' : 'text-folha-800 hover:bg-folha-50'
+              className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${
+                aba === valor ? 'bg-folha-700 text-white' : 'text-folha-800 hover:bg-folha-50'
               }`}
             >
               {rotulo}
@@ -146,7 +146,7 @@ export default function Fila() {
         </div>
         <button
           onClick={() => setSom((s) => !s)}
-          className="rounded-lg border px-3 py-1 text-sm"
+          className="min-h-10 rounded-lg border border-folha-200 px-3 py-1 text-sm font-medium text-folha-800 transition-colors hover:bg-folha-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-folha-600"
           title="Tocar um som quando chegar chamado novo"
         >
           {som ? '🔔 Som ligado' : '🔕 Som desligado'}
@@ -154,7 +154,7 @@ export default function Fila() {
       </div>
 
       {aba === 'mapa' ? (
-        <section className="rounded-2xl bg-white p-4 shadow-sm">
+        <section className="rounded-2xl border border-folha-200 bg-white p-4">
           <Suspense fallback={<div className="h-[600px] animate-pulse rounded-xl bg-gray-100" />}>
             <MapaAlertas altura="h-[600px]" rolagem />
           </Suspense>
@@ -197,7 +197,7 @@ function ConteudoFila({ itens, contadores, erro, destaques, onTentarDeNovo }: Pr
       </div>
 
       {erro && (
-        <div className="rounded-xl bg-red-50 p-3 text-red-800">
+        <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">
           Não conseguimos carregar a fila.{' '}
           <button className="font-semibold underline" onClick={onTentarDeNovo}>
             Tentar de novo
@@ -205,7 +205,9 @@ function ConteudoFila({ itens, contadores, erro, destaques, onTentarDeNovo }: Pr
         </div>
       )}
 
-      {!erro && contadores && itens.length === 0 && <p className="text-gray-600">Nenhum chamado ainda.</p>}
+      {!erro && contadores && itens.length === 0 && (
+        <p className="rounded-2xl border border-folha-200 bg-white p-5 text-sm text-gray-600">Nenhum chamado ainda.</p>
+      )}
 
       <ul className="flex flex-col gap-2">
         {itens.map((i) => (
@@ -220,9 +222,9 @@ function ConteudoFila({ itens, contadores, erro, destaques, onTentarDeNovo }: Pr
 
 function Contador({ rotulo, valor }: { rotulo: string; valor: string }) {
   return (
-    <div className="rounded-xl bg-white p-4 shadow-sm">
+    <div className="rounded-xl border border-folha-200 bg-white p-4">
       <p className="text-sm text-gray-600">{rotulo}</p>
-      <p className="text-3xl font-bold text-folha-800">{valor}</p>
+      <p className="text-3xl font-bold text-folha-900">{valor}</p>
     </div>
   )
 }
@@ -250,7 +252,7 @@ function ItemDaFila({ item, destaque }: { item: ItemFila; destaque: boolean }) {
   return (
     <Link
       to={`/especialista/chamado/${item.id}`}
-      className={`grid grid-cols-[64px_1fr_1fr_auto] items-center gap-4 rounded-xl bg-white p-3 shadow-sm transition hover:bg-folha-50 ${
+      className={`grid grid-cols-[64px_minmax(0,1fr)_minmax(0,1fr)_auto] items-center gap-4 rounded-xl border border-folha-200 bg-white p-3 transition-colors hover:bg-folha-50 ${
         destaque ? 'ring-4 ring-amber-400' : ''
       } ${tratado ? 'opacity-60' : ''}`}
     >
