@@ -135,6 +135,8 @@ scripts/                 scripts Python de dados
 | `/especialista/login` | Login do especialista |
 | `/especialista` | Fila de chamados |
 | `/especialista/chamado/:id` | Análise do chamado |
+| `/admin/login` | Login da administração |
+| `/admin` | Painel executivo e cadastro de especialistas |
 
 ## Edge Function `triagem`
 
@@ -188,6 +190,27 @@ Sobre o conteúdo:
 **Rodar**: é preciso ter pelo menos um usuário especialista. Abra o SQL Editor, cole o arquivo e clique em Run. O seed pode ser executado de novo, porque apaga e recria a demo. Se existir o usuário `produtor.demo@radardepragas.app`, ele vira o autor dos chamados; senão, o especialista assume esse papel.
 
 **Limpar**: rode [supabase/seed/limpar_demo.sql](supabase/seed/limpar_demo.sql) no SQL Editor. Ele apaga tudo com `simulado = true`, e sugestões, validações, localizações e alertas vão junto em cascata.
+
+## Administração
+
+O papel `administrador` tem uma área própria em `/admin`, com login em `/admin/login`. Como os outros papéis, ele não reporta pragas nem analisa chamados: uma conta tem um papel só.
+
+- **Painel executivo**:
+  - alertas hoje, nos últimos 7 dias e nos últimos 30 dias, municípios afetados e pragas diferentes;
+  - chamados por situação, acerto da IA, tempo até a resposta e usuários por papel;
+  - um gráfico diário de chamados e alertas, as pragas com mais alertas, uma tabela de municípios × pragas e o mapa.
+  - **"Incluir dados simulados"** liga e desliga a demonstração.
+  - Os números vêm da função `painel_admin()`, que devolve **só agregados**: o administrador não lê chamados individuais nem a localização dos produtores.
+- **Especialistas**: lista com nome, e-mail, número de análises e situação; cadastro com nome, e-mail e senha inicial; e os botões **Bloquear** e **Reativar**.
+  - A conta é criada pela Edge Function `admin-especialistas`, porque criar usuário exige a `service_role`. A função só aceita chamadas de administrador.
+  - A senha inicial é passada pessoalmente ao especialista.
+
+**Primeiro administrador**: crie o usuário em Authentication → Users e promova a conta pelo SQL Editor:
+```sql
+update public.perfis set papel = 'administrador', nome = 'Nome'
+where id = (select id from auth.users where email = 'admin@exemplo.com');
+```
+Publique a função com `supabase functions deploy admin-especialistas --use-api`.
 
 ## Mapa de alertas
 

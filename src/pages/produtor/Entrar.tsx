@@ -3,7 +3,7 @@ import type { FormEvent } from 'react'
 import { Navigate, useNavigate, useSearchParams } from 'react-router'
 import BotaoGrande from '../../components/BotaoGrande'
 import BotaoVoltar from '../../components/BotaoVoltar'
-import ContaDeEspecialista from '../../components/ContaDeEspecialista'
+import ContaDaEquipe from '../../components/ContaDaEquipe'
 import { emailDoCelular, mascararCelular, normalizarCelular } from '../../lib/celular'
 import { useSessao } from '../../lib/sessao'
 import { supabase } from '../../lib/supabase'
@@ -84,12 +84,12 @@ export default function Entrar() {
 
   // Já entrou como produtor: segue para onde ia
   if (sessao.estado === 'produtor') return <Navigate to={voltar} replace />
-  // Conta de especialista não entra na área do produtor
-  if (sessao.estado === 'especialista') {
+  // Conta da equipe não entra na área do produtor
+  if (sessao.estado === 'especialista' || sessao.estado === 'administrador') {
     return (
       <div className="mx-auto flex max-w-md flex-col gap-4">
         <BotaoVoltar para="/" rotulo="Voltar para o início" />
-        <ContaDeEspecialista rotuloSair="Sair para entrar como produtor" />
+        <ContaDaEquipe papel={sessao.estado} rotuloSair="Sair para entrar como produtor" />
       </div>
     )
   }
